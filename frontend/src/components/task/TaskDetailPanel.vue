@@ -23,64 +23,48 @@
 				</div>
 			</div>
 
-			<div v-if="doc" class="flex-1 overflow-auto p-4 sm:p-6 space-y-5">
+			<div v-if="doc" class="flex-1 overflow-auto px-3 sm:px-4 py-3 space-y-3">
 			<!-- Save error banner -->
-			<div v-if="saveError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
-				<svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+			<div v-if="saveError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded px-3 py-2 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
+				<svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 				<div class="flex-1 whitespace-pre-line">{{ saveError }}</div>
 				<button @click="saveError = ''" class="text-red-400 hover:text-red-600 flex-shrink-0">
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+					<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
 				</button>
 			</div>
-				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Subject</label>
-					<input v-model="doc.subject" @blur="save" class="w-full text-base font-medium border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-				</div>
 
-				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-					<select v-model="doc.status" @change="save" class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200">
-						<option>Open</option><option>Working</option><option>Pending Review</option><option>Overdue</option><option>Completed</option><option>Cancelled</option>
-					</select>
-				</div>
+				<!-- Subject -->
+				<input v-model="doc.subject" @blur="save" class="w-full text-sm font-medium border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1.5 bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
-				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Priority</label>
-					<PrioritySlider v-model="doc.priority" @update:modelValue="save" />
-				</div>
-
-				<!-- Color & Flags -->
-				<div class="flex items-center gap-4">
-					<div class="flex items-center gap-2">
-						<label class="text-xs font-medium text-gray-500 dark:text-gray-400">Color</label>
-						<input v-model="doc.color" @change="save" type="color" class="w-7 h-7 rounded border border-gray-200 dark:border-gray-600 cursor-pointer bg-transparent" />
-						<button v-if="doc.color" @click="doc.color = ''; save()" class="text-xs text-gray-400 hover:text-red-500">clear</button>
-					</div>
-					<label class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 cursor-pointer">
-						<input type="checkbox" :checked="doc.is_milestone" @change="doc.is_milestone = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600" />
-						Milestone
-					</label>
-					<label class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 cursor-pointer">
-						<input type="checkbox" :checked="doc.is_group" @change="doc.is_group = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600" />
-						Group
-					</label>
-				</div>
-
-				<!-- Task Type & Project -->
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<!-- Status + Priority row -->
+				<div class="grid grid-cols-2 gap-2">
 					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Status</label>
+						<select v-model="doc.status" @change="save" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200">
+							<option>Open</option><option>Working</option><option>Pending Review</option><option>Overdue</option><option>Completed</option><option>Cancelled</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Priority</label>
+						<PrioritySlider v-model="doc.priority" @update:modelValue="save" />
+					</div>
+				</div>
+
+				<!-- Type + Project row -->
+				<div class="grid grid-cols-2 gap-2">
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Type</label>
 						<LinkField
 							:model-value="doc.type || ''"
 							@update:model-value="(v: string) => { doc.type = v; save() }"
-							placeholder="e.g. Bug, Feature..."
+							placeholder="Bug, Feature..."
 							search-method="taskist.api.search_task_types"
 							create-method="taskist.api.create_task_type"
 							:allow-create="true"
 						/>
 					</div>
 					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Project</label>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Project</label>
 						<LinkField
 							:model-value="doc.project || ''"
 							@update:model-value="(v: string) => { doc.project = v; save() }"
@@ -90,61 +74,79 @@
 					</div>
 				</div>
 
+				<!-- Dates row -->
+				<div class="grid grid-cols-2 gap-2">
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Start</label>
+						<input v-model="doc.exp_start_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200" />
+					</div>
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">End</label>
+						<input v-model="doc.exp_end_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200" />
+					</div>
+				</div>
+
+				<!-- Hours + Progress row -->
+				<div class="grid grid-cols-3 gap-2">
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Est. Hrs</label>
+						<input v-model.number="doc.expected_time" @change="save" type="number" min="0" step="0.5" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200" />
+					</div>
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Actual</label>
+						<input :value="doc.actual_time || 0" disabled class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400 cursor-not-allowed" />
+					</div>
+					<div>
+						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">{{ doc.progress || 0 }}%</label>
+						<input v-model.number="doc.progress" @change="save" type="range" min="0" max="100" step="10" class="w-full mt-1" />
+					</div>
+				</div>
+
+				<!-- Color, Flags & Recurrence inline -->
+				<div class="flex items-center gap-3 flex-wrap">
+					<div class="flex items-center gap-1.5">
+						<input v-model="doc.color" @change="save" type="color" class="w-5 h-5 rounded border border-gray-200 dark:border-gray-600 cursor-pointer bg-transparent" />
+						<button v-if="doc.color" @click="doc.color = ''; save()" class="text-[10px] text-gray-400 hover:text-red-500">clear</button>
+					</div>
+					<label class="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer">
+						<input type="checkbox" :checked="doc.is_milestone" @change="doc.is_milestone = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600 w-3 h-3" />
+						Milestone
+					</label>
+					<label class="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer">
+						<input type="checkbox" :checked="doc.is_group" @change="doc.is_group = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600 w-3 h-3" />
+						Group
+					</label>
+				</div>
+
 				<!-- Recurrence -->
+				<RecurrenceEditor
+					:model-value="doc.taskist_recurrence_rule || ''"
+					:is-recurring="!!doc.taskist_is_recurring"
+					@update:model-value="(v: string) => { doc.taskist_recurrence_rule = v; save() }"
+					@update:is-recurring="(v: boolean) => { doc.taskist_is_recurring = v ? 1 : 0; save() }"
+				/>
+
+				<!-- Description -->
 				<div>
-					<RecurrenceEditor
-						:model-value="doc.taskist_recurrence_rule || ''"
-						:is-recurring="!!doc.taskist_is_recurring"
-						@update:model-value="(v: string) => { doc.taskist_recurrence_rule = v; save() }"
-						@update:is-recurring="(v: boolean) => { doc.taskist_is_recurring = v ? 1 : 0; save() }"
-					/>
-				</div>
-
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</label>
-						<input v-model="doc.exp_start_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</label>
-						<input v-model="doc.exp_end_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200" />
-					</div>
-				</div>
-
-				<!-- Time Estimates -->
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Expected Hours</label>
-						<input v-model.number="doc.expected_time" @change="save" type="number" min="0" step="0.5" class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Actual Hours</label>
-						<input :value="doc.actual_time || 0" disabled class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400 cursor-not-allowed" />
-					</div>
-				</div>
-
-				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Progress ({{ doc.progress || 0 }}%)</label>
-					<input v-model.number="doc.progress" @change="save" type="range" min="0" max="100" step="10" class="w-full" />
-				</div>
-
-				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description</label>
-					<textarea v-model="doc.description" @blur="save" rows="4" class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 resize-none" placeholder="Add a description..."></textarea>
+					<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Description</label>
+					<textarea v-model="doc.description" @blur="save" rows="2" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1.5 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 resize-y" placeholder="Add a description..."></textarea>
 				</div>
 
 				<!-- Assignees -->
 				<div>
-					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Assigned To</label>
-					<div class="flex flex-wrap gap-2 mb-2">
+					<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-1">
+						Assigned To
+						<button @click="assignToMe" class="ml-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 hover:underline">(assign to me)</button>
+					</label>
+					<div v-if="assignees.length" class="flex flex-wrap gap-1 mb-1.5">
 						<div
 							v-for="assignee in assignees"
 							:key="assignee.email"
-							class="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-2 pr-1 py-1 text-xs"
+							class="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-2 pr-0.5 py-0.5 text-[11px]"
 						>
 							<span>{{ assignee.full_name }}</span>
 							<button @click="removeAssignee(assignee.email)" class="p-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800">
-								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+								<svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
 							</button>
 						</div>
 					</div>
@@ -154,20 +156,20 @@
 							@input="searchUsers"
 							@focus="showUserDropdown = true"
 							type="text"
-							placeholder="Search users to assign..."
-							class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400"
+							placeholder="Search users..."
+							class="w-full border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400"
 						/>
 						<div
 							v-if="showUserDropdown && userResults.length"
-							class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10 max-h-40 overflow-auto"
+							class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10 max-h-32 overflow-auto"
 						>
 							<button
 								v-for="user in userResults"
 								:key="user.name"
 								@mousedown.prevent="addAssignee(user.name)"
-								class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 flex items-center gap-2"
+								class="w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 flex items-center gap-2"
 							>
-								<div class="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
+								<div class="w-5 h-5 rounded-full bg-blue-500 text-white text-[9px] flex items-center justify-center flex-shrink-0">
 									{{ (user.full_name || user.name).charAt(0).toUpperCase() }}
 								</div>
 								<div class="truncate">
@@ -184,15 +186,15 @@
 
 				<!-- Subtasks -->
 				<div>
-					<div class="flex items-center justify-between mb-2">
-						<h3 class="text-xs font-medium text-gray-500 dark:text-gray-400">Subtasks</h3>
-						<button @click="showSubtaskAdd = true" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="Add subtask">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<div class="flex items-center justify-between mb-1">
+						<h3 class="text-[11px] font-medium text-gray-400 dark:text-gray-500">Subtasks</h3>
+						<button @click="showSubtaskAdd = true" class="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="Add subtask">
+							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 							</svg>
 						</button>
 					</div>
-					<div v-if="showSubtaskAdd" class="mb-2 flex gap-2">
+					<div v-if="showSubtaskAdd" class="mb-1.5 flex gap-1.5">
 						<input
 							ref="subtaskInput"
 							v-model="subtaskSubject"
@@ -200,44 +202,43 @@
 							@keydown.escape="showSubtaskAdd = false"
 							type="text"
 							placeholder="Subtask name..."
-							class="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							class="flex-1 border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-						<button @click="createSubtask" :disabled="!subtaskSubject.trim()" class="btn-primary text-xs disabled:opacity-50">Add</button>
+						<button @click="createSubtask" :disabled="!subtaskSubject.trim()" class="btn-primary text-[11px] px-2 py-1 disabled:opacity-50">Add</button>
 					</div>
-					<div v-if="childTasks.length" class="space-y-1">
+					<div v-if="childTasks.length" class="space-y-0.5">
 						<div
 							v-for="child in childTasks"
 							:key="child.name"
 							@click="taskStore.selectTask(child)"
-							class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer text-sm"
+							class="flex items-center gap-1.5 px-1.5 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer text-xs"
 						>
 							<div class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="childPriorityColor(child.priority)"></div>
-							<svg v-if="child.is_group" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+							<svg v-if="child.is_group" class="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
 								<path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
 							</svg>
 							<span class="truncate" :class="child.status === 'Completed' ? 'text-gray-400 line-through' : 'text-gray-700 dark:text-gray-300'">{{ child.subject }}</span>
-							<span v-if="child.status === 'Completed'" class="ml-auto">
-								<svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-							</span>
+							<svg v-if="child.status === 'Completed'" class="w-3 h-3 text-green-500 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
 						</div>
 					</div>
-					<div v-else-if="!showSubtaskAdd" class="text-xs text-gray-400 dark:text-gray-500">No subtasks</div>
+					<div v-else-if="!showSubtaskAdd" class="text-[11px] text-gray-400 dark:text-gray-500">No subtasks</div>
 				</div>
 
+				<!-- Comments -->
 				<div>
-					<h3 class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Comments</h3>
-					<div class="space-y-3">
-						<div v-for="comment in comments" :key="comment.name" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-							<div class="flex items-center gap-2 mb-1">
-								<span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ comment.comment_by }}</span>
-								<span class="text-xs text-gray-400">{{ formatTime(comment.creation) }}</span>
+					<h3 class="text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-1">Comments</h3>
+					<div class="space-y-2">
+						<div v-for="comment in comments" :key="comment.name" class="bg-gray-50 dark:bg-gray-700/50 rounded p-2">
+							<div class="flex items-center gap-1.5 mb-0.5">
+								<span class="text-[11px] font-medium text-gray-700 dark:text-gray-300">{{ comment.comment_by }}</span>
+								<span class="text-[10px] text-gray-400">{{ formatTime(comment.creation) }}</span>
 							</div>
-							<div class="text-sm text-gray-600 dark:text-gray-300" v-html="comment.content"></div>
+							<div class="text-xs text-gray-600 dark:text-gray-300" v-html="comment.content"></div>
 						</div>
 					</div>
-					<div class="mt-3 flex gap-2">
-						<input v-model="newComment" @keydown.enter="addComment" type="text" placeholder="Add a comment..." class="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400" />
-						<button @click="addComment" class="btn-primary text-xs" :disabled="!newComment.trim()">Send</button>
+					<div class="mt-2 flex gap-1.5">
+						<input v-model="newComment" @keydown.enter="addComment" type="text" placeholder="Add a comment..." class="flex-1 border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400" />
+						<button @click="addComment" class="btn-primary text-[11px] px-2 py-1" :disabled="!newComment.trim()">Send</button>
 					</div>
 				</div>
 			</div>
@@ -390,6 +391,18 @@ function searchUsers() {
 			userResults.value = await call('taskist.api.search_users', { query: userSearch.value })
 		} catch { userResults.value = [] }
 	}, 200)
+}
+
+async function assignToMe() {
+	if (!doc.value) return
+	try {
+		const user = await call('frappe.auth.get_logged_user')
+		if (user && !assignees.value.some(a => a.email === user)) {
+			await addAssignee(user)
+		}
+	} catch (e) {
+		console.error('Failed to get current user:', e)
+	}
 }
 
 async function addAssignee(email: string) {

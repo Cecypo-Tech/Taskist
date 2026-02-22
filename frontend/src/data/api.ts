@@ -111,7 +111,7 @@ export async function saveDoc(doc: any): Promise<any> {
 	return data.data
 }
 
-function getCSRFToken(): string {
+export function getCSRFToken(): string {
 	return (
 		(window as any).csrf_token ||
 		(document.cookie.match(/csrf_token=([^;]+)/) || ['', ''])[1]

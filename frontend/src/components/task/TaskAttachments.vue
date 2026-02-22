@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { call } from '@/data/api'
+import { call, getCSRFToken } from '@/data/api'
 
 const props = defineProps<{ taskName: string }>()
 
@@ -94,7 +94,7 @@ async function uploadFile(event: Event) {
 				method: 'POST',
 				body: formData,
 				headers: {
-					'X-Frappe-CSRF-Token': (window as any).frappe?.csrf_token || '',
+					'X-Frappe-CSRF-Token': getCSRFToken(),
 				},
 			})
 		}

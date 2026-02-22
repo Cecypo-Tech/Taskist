@@ -99,7 +99,7 @@ def get_tasks(
 			comment = latest_comments.get(task.name)
 			if comment:
 				plain = re.sub(r"<[^>]+>", "", comment.content or "")
-				task["_last_comment"] = plain[:30]
+				task["_last_comment"] = plain[:50]
 				task["_last_comment_at"] = str(comment.creation)
 			else:
 				task["_last_comment"] = None
@@ -274,49 +274,75 @@ def create_project_type(type_name):
 
 
 @frappe.whitelist()
-def get_daily_summary(date=None, user=None):
-	"""Get daily summary of time entries and completed tasks."""
-	if not date:
-		date = nowdate()
-	if not user:
-		user = frappe.session.user
+def get_summary():
+	"""Get per-user task summary: pending, completed today, completed this week, overdue."""
+	today = getdate(nowdate())
+	# Monday of the current week
+	week_start = today - __import__("datetime").timedelta(days=today.weekday())
 
-	target_date = getdate(date)
-
-	time_entries = frappe.get_list(
-		"Taskist Time Entry",
-		filters={
-			"user": user,
-			"start_time": ["between", [f"{target_date} 00:00:00", f"{target_date} 23:59:59"]],
-		},
-		fields=["name", "task", "start_time", "end_time", "duration_seconds", "entry_type", "is_break", "notes"],
-		order_by="start_time asc",
-	)
-
-	for entry in time_entries:
-		if entry.task:
-			entry["task_subject"] = frappe.db.get_value("Task", entry.task, "subject")
-
-	completed_tasks = frappe.get_list(
+	tasks = frappe.get_list(
 		"Task",
-		filters={
-			"status": "Completed",
-			"modified": ["between", [f"{target_date} 00:00:00", f"{target_date} 23:59:59"]],
-		},
-		fields=["name", "subject", "project", "priority"],
+		filters={"is_template": 0, "status": ["not in", ["Cancelled", "Template"]]},
+		fields=["name", "status", "exp_end_date", "completed_on", "_assign"],
+		page_length=0,
 	)
 
-	total_work_seconds = sum(e.duration_seconds or 0 for e in time_entries if not e.is_break)
-	total_break_seconds = sum(e.duration_seconds or 0 for e in time_entries if e.is_break)
+	# Per-user accumulators: {email: {pending, completed_today, completed_week, overdue}}
+	user_stats = {}
 
-	return {
-		"date": str(target_date),
-		"time_entries": time_entries,
-		"completed_tasks": completed_tasks,
-		"total_work_seconds": total_work_seconds,
-		"total_break_seconds": total_break_seconds,
-		"total_completed": len(completed_tasks),
-	}
+	def ensure_user(email):
+		if email not in user_stats:
+			user_stats[email] = {"pending": 0, "completed_today": 0, "completed_week": 0, "overdue": 0}
+
+	totals = {"pending": 0, "completed_today": 0, "completed_week": 0, "overdue": 0, "unassigned": 0}
+
+	for t in tasks:
+		assignees = []
+		if t._assign:
+			try:
+				assignees = json.loads(t._assign)
+			except (json.JSONDecodeError, TypeError):
+				pass
+
+		is_pending = t.status not in ("Completed", "Cancelled", "Template")
+		is_completed = t.status == "Completed"
+
+		completed_date = getdate(t.completed_on) if t.completed_on else None
+		is_completed_today = is_completed and completed_date == today
+		is_completed_week = is_completed and completed_date and completed_date >= week_start
+
+		due_date = getdate(t.exp_end_date) if t.exp_end_date else None
+		is_overdue = is_pending and due_date is not None and due_date < today
+
+		if is_pending:
+			totals["pending"] += 1
+		if is_completed_today:
+			totals["completed_today"] += 1
+		if is_completed_week:
+			totals["completed_week"] += 1
+		if is_overdue:
+			totals["overdue"] += 1
+		if is_pending and not assignees:
+			totals["unassigned"] += 1
+
+		for email in assignees:
+			ensure_user(email)
+			if is_pending:
+				user_stats[email]["pending"] += 1
+			if is_completed_today:
+				user_stats[email]["completed_today"] += 1
+			if is_completed_week:
+				user_stats[email]["completed_week"] += 1
+			if is_overdue:
+				user_stats[email]["overdue"] += 1
+
+	# Resolve full names
+	users = []
+	for email, stats in sorted(user_stats.items()):
+		full_name = frappe.db.get_value("User", email, "full_name") or email
+		users.append({"email": email, "full_name": full_name, **stats})
+
+	return {"totals": totals, "users": users}
 
 
 @frappe.whitelist()

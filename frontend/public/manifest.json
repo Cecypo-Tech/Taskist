@@ -1,0 +1,22 @@
+{
+	"name": "Taskist",
+	"short_name": "Taskist",
+	"description": "Task management for ERPNext",
+	"start_url": "/taskist",
+	"scope": "/taskist",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#3b82f6",
+	"icons": [
+		{
+			"src": "/assets/taskist/frontend/icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/assets/taskist/frontend/icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}

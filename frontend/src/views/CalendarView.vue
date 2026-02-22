@@ -52,7 +52,7 @@
 								class="text-xs px-1.5 py-0.5 truncate cursor-pointer hover:opacity-80 h-5 leading-4"
 								:class="[
 									taskBarClass(slot.task, slot.isStart, slot.isEnd),
-									priorityBg(slot.task.priority),
+									slot.task.status === 'Completed' ? 'bg-gray-100 text-gray-400 dark:bg-gray-700/50 dark:text-gray-500 line-through' : priorityBg(slot.task.priority),
 								]"
 								@click="taskStore.selectTask(slot.task)"
 								:title="slot.task.subject"
@@ -65,7 +65,7 @@
 							v-for="task in day.singleTasks"
 							:key="task.name"
 							class="text-xs px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 h-5 leading-4"
-							:class="priorityBg(task.priority)"
+							:class="task.status === 'Completed' ? 'bg-gray-100 text-gray-400 dark:bg-gray-700/50 dark:text-gray-500 line-through' : priorityBg(task.priority)"
 							@click="taskStore.selectTask(task)"
 						>{{ task.subject }}</div>
 						<div v-if="day.overflow > 0" class="text-xs text-gray-400 dark:text-gray-500 px-1">+{{ day.overflow }} more</div>
