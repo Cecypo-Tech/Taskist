@@ -1,0 +1,32 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-02-21 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["task", "user", "start_time", "end_time", "duration_seconds", "entry_type", "is_break", "notes"],
+ "fields": [
+  {"fieldname": "task", "fieldtype": "Link", "options": "Task", "reqd": 1, "in_list_view": 1, "label": "Task"},
+  {"fieldname": "user", "fieldtype": "Link", "options": "User", "reqd": 1, "default": "__user", "in_list_view": 1, "label": "User"},
+  {"fieldname": "start_time", "fieldtype": "Datetime", "reqd": 1, "in_list_view": 1, "label": "Start Time"},
+  {"fieldname": "end_time", "fieldtype": "Datetime", "label": "End Time"},
+  {"fieldname": "duration_seconds", "fieldtype": "Int", "read_only": 1, "in_list_view": 1, "label": "Duration (seconds)"},
+  {"fieldname": "entry_type", "fieldtype": "Select", "options": "Manual\nTimer\nPomodoro", "default": "Timer", "reqd": 1, "label": "Entry Type"},
+  {"fieldname": "is_break", "fieldtype": "Check", "default": "0", "label": "Is Break"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-02-21 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Taskist",
+ "name": "Taskist Time Entry",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "All", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "sort_field": "start_time",
+ "sort_order": "DESC"
+}

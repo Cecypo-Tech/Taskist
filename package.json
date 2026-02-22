@@ -1,0 +1,10 @@
+{
+  "name": "taskist",
+  "version": "0.0.1",
+  "description": "Task Management SPA",
+  "scripts": {
+    "postinstall": "cd frontend && yarn install",
+    "build": "cd frontend && npx vite build --base=/assets/taskist/frontend/ && cp ../taskist/public/frontend/index.html ../taskist/www/taskist.html"
+  },
+  "license": "MIT"
+}
