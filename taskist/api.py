@@ -17,6 +17,22 @@ def _normalize_date(dt_value):
 	return s[:10] if len(s) >= 10 else s
 
 
+def _normalize_datetime(dt_value):
+	"""Convert Datetime field value, preserving time when non-zero.
+
+	Returns 'YYYY-MM-DD HH:MM:SS' if time portion is non-zero,
+	otherwise returns 'YYYY-MM-DD'.
+	"""
+	if not dt_value:
+		return None
+	s = str(dt_value)
+	if len(s) > 10:
+		time_part = s[11:].strip()
+		if time_part and time_part != "00:00:00":
+			return s[:19]
+	return s[:10] if len(s) >= 10 else s
+
+
 @frappe.whitelist()
 def get_tasks(
 	filters=None,
@@ -67,10 +83,10 @@ def get_tasks(
 	if assigned_to:
 		tasks = [t for t in tasks if t.get("_assign") and assigned_to in t["_assign"]]
 
-	# Normalize Datetime fields to date strings for the frontend
+	# Normalize Datetime fields for the frontend (preserve time when non-zero)
 	for task in tasks:
-		task["exp_start_date"] = _normalize_date(task.get("exp_start_date"))
-		task["exp_end_date"] = _normalize_date(task.get("exp_end_date"))
+		task["exp_start_date"] = _normalize_datetime(task.get("exp_start_date"))
+		task["exp_end_date"] = _normalize_datetime(task.get("exp_end_date"))
 		task["act_start_date"] = _normalize_date(task.get("act_start_date"))
 		task["act_end_date"] = _normalize_date(task.get("act_end_date"))
 		task["completed_on"] = _normalize_date(task.get("completed_on"))
@@ -115,6 +131,7 @@ def quick_create_task(
 	priority="Medium",
 	status="Open",
 	parent_task=None,
+	exp_start_date=None,
 	exp_end_date=None,
 	assigned_to=None,
 	tags=None,
@@ -133,6 +150,8 @@ def quick_create_task(
 		parent_is_group = frappe.db.get_value("Task", parent_task, "is_group")
 		if not parent_is_group:
 			frappe.db.set_value("Task", parent_task, "is_group", 1)
+	if exp_start_date:
+		task.exp_start_date = exp_start_date
 	if exp_end_date:
 		task.exp_end_date = exp_end_date
 
@@ -164,6 +183,18 @@ def update_task_status(task_name, status, sort_order=None):
 		task.taskist_sort_order = cint(sort_order)
 	task.save(ignore_permissions=False)
 	return {"name": task.name, "status": task.status, "sort_order": task.taskist_sort_order}
+
+
+@frappe.whitelist()
+def update_task_dates(task_name, exp_start_date=None, exp_end_date=None):
+	"""Update a task's expected start/end dates (used by calendar drag-drop)."""
+	doc = frappe.get_doc("Task", task_name)
+	if exp_start_date is not None:
+		doc.exp_start_date = exp_start_date or None
+	if exp_end_date is not None:
+		doc.exp_end_date = exp_end_date or None
+	doc.save(ignore_permissions=False)
+	return {"name": doc.name, "exp_start_date": str(doc.exp_start_date), "exp_end_date": str(doc.exp_end_date)}
 
 
 @frappe.whitelist()

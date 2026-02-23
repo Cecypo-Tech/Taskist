@@ -13,6 +13,8 @@
 			@drop="onDrop"
 			@dragleave="dragOver = false"
 			:class="dragOver ? 'bg-blue-50 dark:bg-blue-900/20 rounded-lg' : ''"
+			data-drop-target
+			:data-drop-column="column"
 		>
 			<div
 				v-for="item in orderedTasks"
@@ -21,6 +23,8 @@
 				@dragstart="onDragStart($event, item.task)"
 				@dragend="dragOver = false"
 				:style="{ marginLeft: item.depth * 12 + 'px' }"
+				data-draggable
+				:data-drag-value="JSON.stringify({ taskName: item.task.name })"
 			>
 				<TaskCard :task="item.task" />
 			</div>

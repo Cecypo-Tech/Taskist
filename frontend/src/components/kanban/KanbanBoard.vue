@@ -1,5 +1,5 @@
 <template>
-	<div class="flex gap-3 md:gap-4 h-full p-3 md:p-6 overflow-x-auto">
+	<div ref="boardRef" class="flex gap-3 md:gap-4 h-full p-3 md:p-6 overflow-x-auto">
 		<KanbanColumn
 			v-for="status in statuses"
 			:key="status"
@@ -11,11 +11,31 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useTaskStore, KANBAN_STATUSES } from '@/stores/taskStore'
 import KanbanColumn from './KanbanColumn.vue'
+import { useTouchDrag } from '@/composables/useTouchDrag'
 
 const taskStore = useTaskStore()
 const statuses = [...KANBAN_STATUSES]
+const boardRef = ref<HTMLElement | null>(null)
+
+useTouchDrag(boardRef, {
+	draggableSelector: '[data-draggable]',
+	dropTargetSelector: '[data-drop-target]',
+	onDrop(dragDataStr, targetEl) {
+		try {
+			const data = JSON.parse(dragDataStr)
+			const column = targetEl.dataset.dropColumn
+			if (data.taskName && column) {
+				const tasks = taskStore.tasksByStatus[column] || []
+				handleMove({ taskName: data.taskName, column, index: tasks.length })
+			}
+		} catch (e) {
+			console.error('Touch drop failed:', e)
+		}
+	},
+})
 
 async function handleMove(payload: { taskName: string; column: string; index: number }) {
 	const task = taskStore.tasks.find(t => t.name === payload.taskName)

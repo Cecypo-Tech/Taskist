@@ -9,7 +9,7 @@ export interface Task {
 	priority: string
 	project: string
 	parent_task: string
-	// Dates - normalized to YYYY-MM-DD by the API
+	// Dates - YYYY-MM-DD or YYYY-MM-DD HH:MM:SS when time is set
 	exp_start_date: string | null
 	exp_end_date: string | null
 	expected_time: number
@@ -180,6 +180,7 @@ export const useTaskStore = defineStore('tasks', () => {
 		priority?: string
 		status?: string
 		parent_task?: string
+		exp_start_date?: string
 		exp_end_date?: string
 	}) {
 		const result = await call('taskist.api.quick_create_task', data)

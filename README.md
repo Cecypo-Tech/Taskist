@@ -37,15 +37,6 @@ bench get-app https://github.com/Cecypo-Tech/Taskist --branch main
 bench install-app taskist
 ```
 
-### Contributing
-
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
-
-```bash
-cd apps/taskist
-pre-commit install
-```
-
 ### License
 
 AGPL 3.0

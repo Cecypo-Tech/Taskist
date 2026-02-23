@@ -78,11 +78,21 @@
 				<div class="grid grid-cols-2 gap-2">
 					<div>
 						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Start</label>
-						<input v-model="doc.exp_start_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200" />
+						<DatetimePicker
+							:model-value="doc.exp_start_date || ''"
+							@update:model-value="(v: string) => { doc.exp_start_date = v; debouncedSave() }"
+							placeholder="Start date/time"
+							input-class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200"
+						/>
 					</div>
 					<div>
 						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">End</label>
-						<input v-model="doc.exp_end_date" @change="debouncedSave" type="date" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200" />
+						<DatetimePicker
+							:model-value="doc.exp_end_date || ''"
+							@update:model-value="(v: string) => { doc.exp_end_date = v; debouncedSave() }"
+							placeholder="End date/time"
+							input-class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200"
+						/>
 					</div>
 				</div>
 
@@ -258,6 +268,7 @@ import PrioritySlider from '@/components/common/PrioritySlider.vue'
 import RecurrenceEditor from '@/components/common/RecurrenceEditor.vue'
 import LinkField from '@/components/common/LinkField.vue'
 import TaskAttachments from '@/components/task/TaskAttachments.vue'
+import DatetimePicker from '@/components/common/DatetimePicker.vue'
 import dayjs from 'dayjs'
 
 const taskStore = useTaskStore()
@@ -276,22 +287,10 @@ const subtaskInput = ref<HTMLInputElement | null>(null)
 
 const isCompleted = computed(() => doc.value && doc.value.status === 'Completed')
 
-function normalizeDate(dt: any): string {
-	// Convert Datetime "2026-02-21 00:00:00" to "2026-02-21" for date inputs
-	if (!dt) return ''
-	const s = String(dt)
-	return s.length >= 10 ? s.substring(0, 10) : s
-}
-
 watch(() => taskStore.selectedTask, async (task) => {
 	if (!task) { doc.value = null; return }
 	try {
 		doc.value = await getDoc('Task', task.name)
-		// Normalize Datetime fields to date-only strings for HTML date inputs
-		if (doc.value) {
-			doc.value.exp_start_date = normalizeDate(doc.value.exp_start_date)
-			doc.value.exp_end_date = normalizeDate(doc.value.exp_end_date)
-		}
 		await Promise.all([loadComments(), loadAssignees(), loadChildTasks()])
 	} catch (e) {
 		console.error('Failed to load task:', e)
@@ -328,11 +327,7 @@ async function save() {
 		if (doc.value?.name) {
 			try {
 				const fresh = await getDoc('Task', doc.value.name)
-				if (fresh) {
-					fresh.exp_start_date = normalizeDate(fresh.exp_start_date)
-					fresh.exp_end_date = normalizeDate(fresh.exp_end_date)
-					doc.value = fresh
-				}
+				if (fresh) doc.value = fresh
 			} catch { /* keep current state if reload also fails */ }
 		}
 	}

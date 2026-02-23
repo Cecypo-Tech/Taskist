@@ -9,6 +9,68 @@
 	}
 }
 
+@layer utilities {
+	.touch-drag-over {
+		@apply ring-2 ring-blue-400 ring-inset bg-blue-50 dark:bg-blue-900/20;
+	}
+}
+
+/* Flatpickr dark mode overrides */
+.dark .flatpickr-calendar {
+	background: #1f2937;
+	border-color: #374151;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.dark .flatpickr-months .flatpickr-month,
+.dark .flatpickr-current-month .flatpickr-monthDropdown-months,
+.dark .flatpickr-weekdays,
+.dark span.flatpickr-weekday {
+	background: #1f2937;
+	color: #d1d5db;
+}
+.dark .flatpickr-day {
+	color: #d1d5db;
+}
+.dark .flatpickr-day:hover {
+	background: #374151;
+	border-color: #374151;
+}
+.dark .flatpickr-day.today {
+	border-color: #3b82f6;
+}
+.dark .flatpickr-day.selected {
+	background: #3b82f6;
+	border-color: #3b82f6;
+	color: #fff;
+}
+.dark .flatpickr-day.prevMonthDay,
+.dark .flatpickr-day.nextMonthDay {
+	color: #6b7280;
+}
+.dark .flatpickr-time input,
+.dark .flatpickr-time .flatpickr-am-pm {
+	background: #1f2937;
+	color: #d1d5db;
+}
+.dark .flatpickr-time input:hover,
+.dark .flatpickr-time input:focus,
+.dark .flatpickr-time .flatpickr-am-pm:hover {
+	background: #374151;
+}
+.dark .numInputWrapper:hover {
+	background: #374151;
+}
+.dark .flatpickr-current-month input.cur-year {
+	color: #d1d5db;
+}
+.dark .flatpickr-months .flatpickr-prev-month svg,
+.dark .flatpickr-months .flatpickr-next-month svg {
+	fill: #9ca3af;
+}
+.dark .flatpickr-time .flatpickr-time-separator {
+	color: #d1d5db;
+}
+
 @layer components {
 	.btn-primary {
 		@apply bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors;

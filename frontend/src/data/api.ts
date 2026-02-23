@@ -25,6 +25,14 @@ function extractFrappeError(responseData: any, fallback: string): string {
 	return fallback
 }
 
+function handleAuthError(res: Response): boolean {
+	if (res.status === 403 || res.status === 401) {
+		window.location.href = '/login?redirect-to=' + encodeURIComponent(window.location.pathname)
+		return true
+	}
+	return false
+}
+
 export async function call(method: string, args: Record<string, any> = {}): Promise<any> {
 	const res = await fetch('/api/method/' + method, {
 		method: 'POST',
@@ -36,6 +44,7 @@ export async function call(method: string, args: Record<string, any> = {}): Prom
 	})
 
 	if (!res.ok) {
+		if (handleAuthError(res)) return
 		const error = await res.json().catch(() => ({ message: res.statusText }))
 		throw new Error(extractFrappeError(error, 'API call failed'))
 	}
@@ -68,6 +77,7 @@ export async function getList(
 	})
 
 	if (!res.ok) {
+		if (handleAuthError(res)) return []
 		const error = await res.json().catch(() => ({ message: res.statusText }))
 		throw new Error(extractFrappeError(error, 'Failed to fetch list'))
 	}
@@ -84,6 +94,7 @@ export async function getDoc(doctype: string, name: string): Promise<any> {
 	})
 
 	if (!res.ok) {
+		if (handleAuthError(res)) return null
 		const error = await res.json().catch(() => ({ message: res.statusText }))
 		throw new Error(extractFrappeError(error, 'Failed to fetch document'))
 	}
@@ -103,6 +114,7 @@ export async function saveDoc(doc: any): Promise<any> {
 	})
 
 	if (!res.ok) {
+		if (handleAuthError(res)) return null
 		const error = await res.json().catch(() => ({ message: res.statusText }))
 		throw new Error(extractFrappeError(error, 'Failed to save document'))
 	}
