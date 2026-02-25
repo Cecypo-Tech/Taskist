@@ -32,8 +32,13 @@
 
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Priority</label>
-						<PrioritySlider v-model="form.priority" />
+						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Project Template</label>
+						<LinkField
+							:model-value="form.project_template"
+							@update:model-value="(v: string) => form.project_template = v"
+							placeholder="Select template..."
+							search-method="taskist.api.search_project_templates"
+						/>
 					</div>
 					<div>
 						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Project Type</label>
@@ -50,13 +55,27 @@
 
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Company <span class="text-red-500">*</span></label>
-						<LinkField
-							:model-value="form.company"
-							@update:model-value="(v: string) => form.company = v"
-							placeholder="Select company..."
-							search-method="taskist.api.search_companies"
+						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Expected Start Date</label>
+						<input
+							v-model="form.expected_start_date"
+							type="date"
+							class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Expected End Date</label>
+						<input
+							v-model="form.expected_end_date"
+							type="date"
+							class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Priority</label>
+						<PrioritySlider v-model="form.priority" />
 					</div>
 					<div>
 						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Customer</label>
@@ -66,6 +85,18 @@
 							placeholder="Search customers..."
 							search-method="taskist.api.search_customers"
 							display-field="customer_name"
+						/>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Company <span class="text-red-500">*</span></label>
+						<LinkField
+							:model-value="form.company"
+							@update:model-value="(v: string) => form.company = v"
+							placeholder="Select company..."
+							search-method="taskist.api.search_companies"
 						/>
 					</div>
 				</div>
@@ -159,6 +190,9 @@ const form = ref({
 	project_name: '',
 	priority: 'Medium',
 	project_type: '',
+	project_template: '',
+	expected_start_date: '',
+	expected_end_date: '',
 	company: '',
 	customer: '',
 	notes: '',
@@ -205,6 +239,9 @@ async function createProject() {
 		if (form.value.company) doc.company = form.value.company
 		if (form.value.customer) doc.customer = form.value.customer
 		if (form.value.project_type) doc.project_type = form.value.project_type
+		if (form.value.project_template) doc.project_template = form.value.project_template
+		if (form.value.expected_start_date) doc.expected_start_date = form.value.expected_start_date
+		if (form.value.expected_end_date) doc.expected_end_date = form.value.expected_end_date
 		if (form.value.notes) doc.notes = form.value.notes
 		if (form.value.users.length) {
 			doc.users = form.value.users.map(u => ({ user: u.user }))

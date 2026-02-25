@@ -36,6 +36,14 @@
 					<span v-for="tag in tags" :key="tag" class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{{ tag }}</span>
 				</div>
 				<div class="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+					<span
+						v-if="task.parent_task"
+						@click.stop="taskStore.selectTask({ name: task.parent_task } as any)"
+						class="flex items-center gap-0.5 text-purple-500 hover:text-purple-700 dark:hover:text-purple-300 cursor-pointer"
+						:title="'Parent: ' + task.parent_task"
+					>
+						<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l-4 4m0 0l4 4m-4-4h11a4 4 0 000-8h-1" /></svg>
+					</span>
 					<span v-if="childCount > 0" class="flex items-center gap-0.5 text-blue-500">
 						<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" /></svg>
 						{{ childCount }}

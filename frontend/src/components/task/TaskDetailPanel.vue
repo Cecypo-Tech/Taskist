@@ -194,6 +194,18 @@
 				<!-- Attachments -->
 				<TaskAttachments v-if="doc.name" :task-name="doc.name" />
 
+				<!-- Parent Task -->
+				<div v-if="doc.parent_task" class="flex items-center gap-1.5 px-2 py-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+					<svg class="w-3.5 h-3.5 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l-4 4m0 0l4 4m-4-4h11a4 4 0 000-8h-1" /></svg>
+					<span class="text-[11px] text-gray-500 dark:text-gray-400">Parent:</span>
+					<button
+						@click="taskStore.selectTask({ name: doc.parent_task } as any)"
+						class="text-[11px] font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 hover:underline truncate"
+					>
+						{{ doc.parent_task }}
+					</button>
+				</div>
+
 				<!-- Subtasks -->
 				<div>
 					<div class="flex items-center justify-between mb-1">

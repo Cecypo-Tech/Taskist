@@ -44,8 +44,10 @@
 			</button>
 		</div>
 
-		<ProjectDialog v-if="showProjectDialog" @close="showProjectDialog = false" @created="loadProjects" />
 	</aside>
+	<Teleport to="body">
+		<ProjectDialog v-if="showProjectDialog" @close="showProjectDialog = false" @created="loadProjects" />
+	</Teleport>
 </template>
 
 <script setup lang="ts">

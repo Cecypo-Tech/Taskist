@@ -294,6 +294,22 @@ def search_project_types(query="", page_length=20):
 
 
 @frappe.whitelist()
+def search_project_templates(query="", page_length=20):
+	"""Search project templates."""
+	filters = {}
+	if query:
+		filters["name"] = ["like", f"%{query}%"]
+
+	return frappe.get_list(
+		"Project Template",
+		filters=filters,
+		fields=["name"],
+		order_by="name asc",
+		page_length=cint(page_length),
+	)
+
+
+@frappe.whitelist()
 def create_project_type(type_name):
 	"""Create a new Project Type on the fly."""
 	if frappe.db.exists("Project Type", type_name):
