@@ -149,7 +149,6 @@ scheduler_events = {
 
 fixtures = [
 	{"dt": "Custom Field", "filters": [["name", "like", "Task-taskist_%"]]},
-	{"dt": "Role", "filters": [["name", "=", "Taskist User"]]},
 ]
 
 after_install = "taskist.setup.after_install"

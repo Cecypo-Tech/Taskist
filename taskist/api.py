@@ -94,7 +94,7 @@ def get_tasks(
 	# Enrich tasks with last comment info
 	task_names = [t.name for t in tasks]
 	if task_names:
-		comments = frappe.get_list(
+		comments = frappe.get_all(
 			"Comment",
 			filters={
 				"reference_doctype": "Task",
