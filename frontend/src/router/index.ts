@@ -6,6 +6,10 @@ const routes = [
 		redirect: '/kanban',
 	},
 	{
+		path: '/:pathMatch(.*)*',
+		redirect: '/kanban',
+	},
+	{
 		path: '/kanban',
 		name: 'Kanban',
 		component: () => import('@/views/KanbanView.vue'),

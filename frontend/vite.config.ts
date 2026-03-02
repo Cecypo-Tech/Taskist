@@ -19,6 +19,7 @@ export default defineConfig({
 			'@': path.resolve(__dirname, 'src'),
 		},
 	},
+	base: '/assets/taskist/frontend/',
 	build: {
 		outDir: path.resolve(__dirname, '..', 'taskist', 'public', 'frontend'),
 		emptyOutDir: true,

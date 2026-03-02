@@ -1,6 +1,6 @@
 <template>
 	<aside
-		class="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-200"
+		class="h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-200"
 		:class="collapsed ? 'w-16' : 'w-64'"
 	>
 		<div class="h-14 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
@@ -28,10 +28,17 @@
 
 			<button
 				class="w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors"
-				:class="!selectedProject ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
+				:class="selectedProject === '' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
 				@click="selectProject('')"
 			>
 				All Tasks
+			</button>
+			<button
+				class="w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors"
+				:class="selectedProject === '__no_project__' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
+				@click="selectProject('__no_project__')"
+			>
+				Non-Project Tasks
 			</button>
 			<button
 				v-for="project in projects"
@@ -80,7 +87,13 @@ async function loadProjects() {
 
 function selectProject(project: string) {
 	selectedProject.value = project
-	taskStore.filters = project ? { project } : {}
+	if (!project) {
+		taskStore.filters = {}
+	} else if (project === '__no_project__') {
+		taskStore.filters = { project: ['is', 'not set'] }
+	} else {
+		taskStore.filters = { project }
+	}
 	taskStore.fetchTasks()
 }
 

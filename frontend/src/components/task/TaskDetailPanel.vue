@@ -5,7 +5,20 @@
 			class="fixed right-0 top-0 h-full w-full sm:w-[480px] bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl z-40 flex flex-col"
 		>
 			<div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-				<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">Task Details</h2>
+				<div class="flex items-center gap-1.5 min-w-0">
+					<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">Task Details</h2>
+					<a
+						v-if="taskStore.selectedTask?.name"
+						:href="`/desk/task/${taskStore.selectedTask.name}`"
+						target="_blank"
+						class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 flex-shrink-0"
+						title="Open in Desk"
+					>
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+						</svg>
+					</a>
+				</div>
 				<div class="flex items-center gap-2">
 					<button
 						@click="markCompleted"
@@ -126,15 +139,13 @@
 						<input type="checkbox" :checked="doc.is_group" @change="doc.is_group = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600 w-3 h-3" />
 						Group
 					</label>
+					<RecurrenceEditor
+						:model-value="doc.taskist_recurrence_rule || ''"
+						:is-recurring="!!doc.taskist_is_recurring"
+						@update:model-value="(v: string) => { doc.taskist_recurrence_rule = v; save() }"
+						@update:is-recurring="(v: boolean) => { doc.taskist_is_recurring = v ? 1 : 0; save() }"
+					/>
 				</div>
-
-				<!-- Recurrence -->
-				<RecurrenceEditor
-					:model-value="doc.taskist_recurrence_rule || ''"
-					:is-recurring="!!doc.taskist_is_recurring"
-					@update:model-value="(v: string) => { doc.taskist_recurrence_rule = v; save() }"
-					@update:is-recurring="(v: boolean) => { doc.taskist_is_recurring = v ? 1 : 0; save() }"
-				/>
 
 				<!-- Description -->
 				<div>
@@ -275,7 +286,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
-import { getDoc, saveDoc, getList, call } from '@/data/api'
+import { getDoc, saveDoc, call } from '@/data/api'
 import PrioritySlider from '@/components/common/PrioritySlider.vue'
 import RecurrenceEditor from '@/components/common/RecurrenceEditor.vue'
 import LinkField from '@/components/common/LinkField.vue'
@@ -348,21 +359,14 @@ async function save() {
 async function loadComments() {
 	if (!doc.value) return
 	try {
-		comments.value = await getList('Comment', {
-			filters: { reference_doctype: 'Task', reference_name: doc.value.name, comment_type: 'Comment' },
-			fields: ['name', 'content', 'comment_by', 'creation'],
-			order_by: 'creation asc',
-			limit_page_length: 50,
-		})
+		comments.value = await call('taskist.api.get_task_comments', { task_name: doc.value.name }) || []
 	} catch { comments.value = [] }
 }
 
 async function addComment() {
 	if (!newComment.value.trim() || !doc.value) return
 	try {
-		await call('frappe.client.insert', {
-			doc: { doctype: 'Comment', comment_type: 'Comment', reference_doctype: 'Task', reference_name: doc.value.name, content: newComment.value.trim() }
-		})
+		await call('taskist.api.add_task_comment', { task_name: doc.value.name, content: newComment.value.trim() })
 		newComment.value = ''
 		await loadComments()
 	} catch (e) {

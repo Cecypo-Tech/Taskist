@@ -425,6 +425,41 @@ def unassign_task(task_name, user):
 	return get_task_assignees(task_name)
 
 
+@frappe.whitelist()
+def get_task_comments(task_name):
+	"""Get comments for a task. Checks Task read access instead of Comment DocType permissions."""
+	frappe.has_permission("Task", doc=task_name, throw=True)
+	return frappe.get_all(
+		"Comment",
+		filters={
+			"reference_doctype": "Task",
+			"reference_name": task_name,
+			"comment_type": "Comment",
+		},
+		fields=["name", "content", "comment_by", "creation"],
+		order_by="creation asc",
+		limit=50,
+	)
+
+
+@frappe.whitelist()
+def add_task_comment(task_name, content):
+	"""Add a comment to a task. Requires Task write access."""
+	frappe.has_permission("Task", "write", doc=task_name, throw=True)
+	comment = frappe.new_doc("Comment")
+	comment.comment_type = "Comment"
+	comment.reference_doctype = "Task"
+	comment.reference_name = task_name
+	comment.content = content
+	comment.insert(ignore_permissions=True)
+	return {
+		"name": comment.name,
+		"content": comment.content,
+		"comment_by": comment.comment_by,
+		"creation": str(comment.creation),
+	}
+
+
 def get_task_assignees(task_name):
 	"""Get list of users assigned to a task."""
 	assign_str = frappe.db.get_value("Task", task_name, "_assign")
