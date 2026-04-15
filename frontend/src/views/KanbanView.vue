@@ -1,7 +1,7 @@
 <template>
 	<div class="h-full">
 		<div v-if="taskStore.loading && !taskStore.tasks.length" class="flex items-center justify-center h-full">
-			<div class="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+			<LoadingIndicator class="w-8 h-8" />
 		</div>
 		<KanbanBoard v-else />
 	</div>

@@ -15,25 +15,19 @@
 						:class="taskStore.isCollapsed(task.name) ? '' : 'rotate-90'"
 						:title="taskStore.isCollapsed(task.name) ? 'Expand' : 'Collapse'"
 					>
-						<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+						<FeatherIcon name="chevron-right" class="w-3 h-3" />
 					</button>
-					<svg v-if="task.is_group" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" title="Group task">
-						<path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
-					</svg>
-					<svg v-if="task.is_milestone" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" title="Milestone">
-						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-					</svg>
+					<FeatherIcon v-if="task.is_group" name="folder" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" title="Group task" />
+					<FeatherIcon v-if="task.is_milestone" name="star" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" title="Milestone" />
 					<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ task.subject }}</p>
-					<svg v-if="task.taskist_is_recurring" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Recurring task">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-					</svg>
+					<FeatherIcon v-if="task.taskist_is_recurring" name="refresh-cw" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" title="Recurring task" />
 				</div>
 				<!-- Progress bar if progress > 0 -->
-				<div v-if="task.progress > 0" class="mt-1.5 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-					<div class="h-full bg-blue-500 rounded-full transition-all" :style="{ width: task.progress + '%' }"></div>
+				<div v-if="task.progress > 0" class="mt-1.5">
+					<FrappeProgress :value="task.progress" size="sm" />
 				</div>
 				<div v-if="tags.length" class="flex flex-wrap gap-1 mt-1.5">
-					<span v-for="tag in tags" :key="tag" class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{{ tag }}</span>
+					<Badge v-for="tag in tags" :key="tag" :label="tag" size="sm" theme="gray" />
 				</div>
 				<div class="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
 					<span
@@ -42,10 +36,10 @@
 						class="flex items-center gap-0.5 text-purple-500 hover:text-purple-700 dark:hover:text-purple-300 cursor-pointer"
 						:title="'Parent: ' + task.parent_task"
 					>
-						<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l-4 4m0 0l4 4m-4-4h11a4 4 0 000-8h-1" /></svg>
+						<FeatherIcon name="corner-up-left" class="w-3 h-3" />
 					</span>
 					<span v-if="childCount > 0" class="flex items-center gap-0.5 text-blue-500">
-						<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" /></svg>
+						<FeatherIcon name="folder" class="w-3 h-3" />
 						{{ childCount }}
 						<button
 							@click.stop="taskStore.toggleGroupFilter(task.name)"
@@ -53,23 +47,25 @@
 							:class="taskStore.groupFilter === task.name ? 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40' : 'text-blue-400 hover:text-blue-600'"
 							:title="taskStore.groupFilter === task.name ? 'Clear filter' : 'Show only children'"
 						>
-							<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+							<FeatherIcon name="filter" class="w-3 h-3" />
 						</button>
 					</span>
 					<span v-if="task.exp_end_date" class="flex items-center gap-1" :class="isOverdue ? 'text-red-500' : ''">
 						{{ formatDate(task.exp_end_date) }}
 					</span>
-					<span v-if="task.type" class="badge bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[10px]">{{ task.type }}</span>
+					<span v-if="task.type">
+						<Badge :label="task.type" size="sm" theme="gray" />
+					</span>
 					<span v-if="task.project" class="truncate max-w-[100px]">{{ task.project }}</span>
 					<div v-if="assignees.length" class="flex -space-x-1 ml-auto">
-						<div
+						<Avatar
 							v-for="(user, i) in assignees.slice(0, 3)"
 							:key="i"
-							class="w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center ring-2 ring-white dark:ring-gray-800"
+							:label="user"
+							size="xs"
+							class="ring-2 ring-white dark:ring-gray-800"
 							:title="user"
-						>
-							{{ user.charAt(0).toUpperCase() }}
-						</div>
+						/>
 					</div>
 				</div>
 			</div>

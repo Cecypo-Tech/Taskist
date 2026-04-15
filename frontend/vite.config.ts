@@ -1,9 +1,19 @@
 import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import frappeuiPlugin from 'frappe-ui/vite'
 
 export default defineConfig({
-	plugins: [vue()],
+	plugins: [
+		...frappeuiPlugin({
+			lucideIcons: true,
+			frappeProxy: false,
+			frappeTypes: false,
+			jinjaBootData: false,
+			buildConfig: false,
+		}),
+		vue(),
+	],
 	server: {
 		port: 8080,
 		host: '0.0.0.0',

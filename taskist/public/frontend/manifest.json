@@ -1,4 +1,5 @@
 {
+	"id": "/taskist",
 	"name": "Taskist",
 	"short_name": "Taskist",
 	"description": "Task management for ERPNext",
@@ -11,12 +12,14 @@
 		{
 			"src": "/assets/taskist/frontend/icons/icon-192.png",
 			"sizes": "192x192",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "any"
 		},
 		{
 			"src": "/assets/taskist/frontend/icons/icon-512.png",
 			"sizes": "512x512",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "any"
 		}
 	]
 }

@@ -1,35 +1,26 @@
 <template>
 	<div class="h-full flex flex-col">
-		<div class="flex flex-wrap items-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-			<select v-model="priorityFilter" class="text-xs md:text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-2 md:px-3 py-1.5 bg-white dark:bg-gray-700 dark:text-gray-200">
-				<option value="">All Priorities</option>
-				<option>High</option><option>Medium</option><option>Low</option>
-			</select>
-			<select v-model="statusFilter" class="text-xs md:text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-2 md:px-3 py-1.5 bg-white dark:bg-gray-700 dark:text-gray-200">
-				<option value="">All Statuses</option>
-				<option>Open</option><option>Working</option><option>Pending Review</option><option>Overdue</option><option>Completed</option><option>Cancelled</option>
-			</select>
-			<select v-model="sortBy" class="text-xs md:text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-2 md:px-3 py-1.5 bg-white dark:bg-gray-700 dark:text-gray-200">
-				<option value="hierarchy">Hierarchy</option>
-				<option value="modified">Last Modified</option>
-				<option value="creation">Created</option>
-				<option value="priority">Priority</option>
-				<option value="subject">Name</option>
-				<option value="exp_end_date">Due Date</option>
-				<option value="last_comment">Last Comment</option>
-			</select>
-			<button @click="sortAsc = !sortAsc" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400" :title="sortAsc ? 'Ascending' : 'Descending'">
-				<svg v-if="sortAsc" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
-				<svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" /></svg>
-			</button>
-			<label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 ml-auto">
-				<input type="checkbox" v-model="showCompleted" class="rounded" />
-				Show completed
-			</label>
+		<div class="flex items-center gap-3 px-3 md:px-6 py-2 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 overflow-x-auto">
+			<div class="flex items-center gap-1.5 flex-shrink-0">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Priority</span>
+				<FrappeSelect v-model="priorityFilter" size="sm" :options="[{ label: 'All', value: '' }, { label: 'High', value: 'High' }, { label: 'Medium', value: 'Medium' }, { label: 'Low', value: 'Low' }]" />
+			</div>
+			<div class="flex items-center gap-1.5 flex-shrink-0">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Status</span>
+				<FrappeSelect v-model="statusFilter" size="sm" :options="[{ label: 'All', value: '' }, { label: 'Open', value: 'Open' }, { label: 'Working', value: 'Working' }, { label: 'Pending Review', value: 'Pending Review' }, { label: 'Overdue', value: 'Overdue' }, { label: 'Completed', value: 'Completed' }, { label: 'Cancelled', value: 'Cancelled' }]" />
+			</div>
+			<div class="flex items-center gap-1 flex-shrink-0">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Sort</span>
+				<FrappeSelect v-model="sortBy" size="sm" :options="[{ label: 'Hierarchy', value: 'hierarchy' }, { label: 'Modified', value: 'modified' }, { label: 'Created', value: 'creation' }, { label: 'Priority', value: 'priority' }, { label: 'Name', value: 'subject' }, { label: 'Due Date', value: 'exp_end_date' }, { label: 'Last Comment', value: 'last_comment' }]" />
+				<button @click="sortAsc = !sortAsc" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 flex-shrink-0" :title="sortAsc ? 'Ascending' : 'Descending'">
+					<FeatherIcon :name="sortAsc ? 'arrow-up' : 'arrow-down'" class="w-4 h-4" />
+				</button>
+			</div>
+			<FrappeCheckbox v-model="showCompleted" label="Show completed" class="ml-auto flex-shrink-0" />
 		</div>
 		<div class="flex-1 overflow-auto">
 			<div v-if="taskStore.loading && !displayTasks.length" class="flex items-center justify-center h-48">
-				<div class="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+				<LoadingIndicator class="w-6 h-6" />
 			</div>
 			<div v-else-if="!displayTasks.length" class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500">
 				<p class="text-sm">No tasks found</p>

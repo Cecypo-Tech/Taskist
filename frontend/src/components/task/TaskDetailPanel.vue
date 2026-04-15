@@ -14,48 +14,49 @@
 						class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 flex-shrink-0"
 						title="Open in Desk"
 					>
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-						</svg>
+						<FeatherIcon name="external-link" class="w-4 h-4" />
 					</a>
 				</div>
 				<div class="flex items-center gap-2">
-					<button
+					<Button
 						@click="markCompleted"
-						class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
-						:class="isCompleted ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400'"
-					>
-						{{ isCompleted ? 'Completed' : 'Mark Completed' }}
-					</button>
-					<button
+						size="sm"
+						:variant="isCompleted ? 'subtle' : 'ghost'"
+						:theme="isCompleted ? 'green' : 'gray'"
+						:label="isCompleted ? 'Completed' : 'Mark Completed'"
+					/>
+					<Button
 						@click="taskStore.closeDetail()"
-						class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-					>
-						Close
-					</button>
+						size="sm"
+						variant="ghost"
+						label="Close"
+					/>
 				</div>
 			</div>
 
 			<div v-if="doc" class="flex-1 overflow-auto px-3 sm:px-4 py-3 space-y-3">
-			<!-- Save error banner -->
-			<div v-if="saveError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded px-3 py-2 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
-				<svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-				<div class="flex-1 whitespace-pre-line">{{ saveError }}</div>
-				<button @click="saveError = ''" class="text-red-400 hover:text-red-600 flex-shrink-0">
-					<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-				</button>
-			</div>
+				<!-- Save error banner -->
+				<div v-if="saveError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded px-3 py-2 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
+					<FeatherIcon name="alert-circle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+					<div class="flex-1 whitespace-pre-line">{{ saveError }}</div>
+					<button @click="saveError = ''" class="text-red-400 hover:text-red-600 flex-shrink-0">
+						<FeatherIcon name="x" class="w-3.5 h-3.5" />
+					</button>
+				</div>
 
 				<!-- Subject -->
-				<input v-model="doc.subject" @blur="save" class="w-full text-sm font-medium border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1.5 bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+				<TextInput v-model="doc.subject" @blur="save" class="w-full text-sm font-medium" />
 
 				<!-- Status + Priority row -->
 				<div class="grid grid-cols-2 gap-2">
 					<div>
 						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Status</label>
-						<select v-model="doc.status" @change="save" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200">
-							<option>Open</option><option>Working</option><option>Pending Review</option><option>Overdue</option><option>Completed</option><option>Cancelled</option>
-						</select>
+						<FrappeSelect
+							v-model="doc.status"
+							@update:modelValue="save"
+							:options="['Open', 'Working', 'Pending Review', 'Overdue', 'Completed', 'Cancelled']"
+							class="w-full"
+						/>
 					</div>
 					<div>
 						<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Priority</label>
@@ -131,14 +132,16 @@
 						<input v-model="doc.color" @change="save" type="color" class="w-5 h-5 rounded border border-gray-200 dark:border-gray-600 cursor-pointer bg-transparent" />
 						<button v-if="doc.color" @click="doc.color = ''; save()" class="text-[10px] text-gray-400 hover:text-red-500">clear</button>
 					</div>
-					<label class="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer">
-						<input type="checkbox" :checked="doc.is_milestone" @change="doc.is_milestone = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600 w-3 h-3" />
-						Milestone
-					</label>
-					<label class="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer">
-						<input type="checkbox" :checked="doc.is_group" @change="doc.is_group = ($event.target as HTMLInputElement).checked ? 1 : 0; save()" class="rounded border-gray-300 dark:border-gray-600 w-3 h-3" />
-						Group
-					</label>
+					<FrappeCheckbox
+						:model-value="!!doc.is_milestone"
+						@update:model-value="(v: boolean) => { doc.is_milestone = v ? 1 : 0; save() }"
+						label="Milestone"
+					/>
+					<FrappeCheckbox
+						:model-value="!!doc.is_group"
+						@update:model-value="(v: boolean) => { doc.is_group = v ? 1 : 0; save() }"
+						label="Group"
+					/>
 					<RecurrenceEditor
 						:model-value="doc.taskist_recurrence_rule || ''"
 						:is-recurring="!!doc.taskist_is_recurring"
@@ -150,7 +153,7 @@
 				<!-- Description -->
 				<div>
 					<label class="block text-[11px] font-medium text-gray-400 dark:text-gray-500 mb-0.5">Description</label>
-					<textarea v-model="doc.description" @blur="save" rows="2" class="w-full border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1.5 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 resize-y" placeholder="Add a description..."></textarea>
+					<FrappeTextarea v-model="doc.description" @blur="save" :rows="2" placeholder="Add a description..." />
 				</div>
 
 				<!-- Assignees -->
@@ -163,11 +166,12 @@
 						<div
 							v-for="assignee in assignees"
 							:key="assignee.email"
-							class="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-2 pr-0.5 py-0.5 text-[11px]"
+							class="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-1 pr-0.5 py-0.5 text-[11px]"
 						>
-							<span>{{ assignee.full_name }}</span>
+							<Avatar :label="assignee.full_name" size="xs" />
+							<span class="px-1">{{ assignee.full_name }}</span>
 							<button @click="removeAssignee(assignee.email)" class="p-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800">
-								<svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+								<FeatherIcon name="x" class="w-2.5 h-2.5" />
 							</button>
 						</div>
 					</div>
@@ -190,9 +194,7 @@
 								@mousedown.prevent="addAssignee(user.name)"
 								class="w-full text-left px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 flex items-center gap-2"
 							>
-								<div class="w-5 h-5 rounded-full bg-blue-500 text-white text-[9px] flex items-center justify-center flex-shrink-0">
-									{{ (user.full_name || user.name).charAt(0).toUpperCase() }}
-								</div>
+								<Avatar :label="user.full_name || user.name" size="xs" />
 								<div class="truncate">
 									<span class="font-medium">{{ user.full_name || user.name }}</span>
 									<span v-if="user.full_name" class="text-gray-400 dark:text-gray-500 ml-1">{{ user.name }}</span>
@@ -207,7 +209,7 @@
 
 				<!-- Parent Task -->
 				<div v-if="doc.parent_task" class="flex items-center gap-1.5 px-2 py-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-					<svg class="w-3.5 h-3.5 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l-4 4m0 0l4 4m-4-4h11a4 4 0 000-8h-1" /></svg>
+					<FeatherIcon name="corner-up-left" class="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
 					<span class="text-[11px] text-gray-500 dark:text-gray-400">Parent:</span>
 					<button
 						@click="taskStore.selectTask({ name: doc.parent_task } as any)"
@@ -222,9 +224,7 @@
 					<div class="flex items-center justify-between mb-1">
 						<h3 class="text-[11px] font-medium text-gray-400 dark:text-gray-500">Subtasks</h3>
 						<button @click="showSubtaskAdd = true" class="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="Add subtask">
-							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-							</svg>
+							<FeatherIcon name="plus" class="w-3.5 h-3.5" />
 						</button>
 					</div>
 					<div v-if="showSubtaskAdd" class="mb-1.5 flex gap-1.5">
@@ -237,7 +237,7 @@
 							placeholder="Subtask name..."
 							class="flex-1 border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-						<button @click="createSubtask" :disabled="!subtaskSubject.trim()" class="btn-primary text-[11px] px-2 py-1 disabled:opacity-50">Add</button>
+						<Button @click="createSubtask" :disabled="!subtaskSubject.trim()" size="sm" variant="solid" theme="blue" label="Add" />
 					</div>
 					<div v-if="childTasks.length" class="space-y-0.5">
 						<div
@@ -247,11 +247,9 @@
 							class="flex items-center gap-1.5 px-1.5 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer text-xs"
 						>
 							<div class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="childPriorityColor(child.priority)"></div>
-							<svg v-if="child.is_group" class="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-								<path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
-							</svg>
+							<FeatherIcon v-if="child.is_group" name="folder" class="w-3 h-3 text-blue-500 flex-shrink-0" />
 							<span class="truncate" :class="child.status === 'Completed' ? 'text-gray-400 line-through' : 'text-gray-700 dark:text-gray-300'">{{ child.subject }}</span>
-							<svg v-if="child.status === 'Completed'" class="w-3 h-3 text-green-500 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+							<FeatherIcon v-if="child.status === 'Completed'" name="check" class="w-3 h-3 text-green-500 ml-auto flex-shrink-0" />
 						</div>
 					</div>
 					<div v-else-if="!showSubtaskAdd" class="text-[11px] text-gray-400 dark:text-gray-500">No subtasks</div>
@@ -271,13 +269,13 @@
 					</div>
 					<div class="mt-2 flex gap-1.5">
 						<input v-model="newComment" @keydown.enter="addComment" type="text" placeholder="Add a comment..." class="flex-1 border border-gray-200 dark:border-gray-600 rounded px-2.5 py-1 text-xs bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400" />
-						<button @click="addComment" class="btn-primary text-[11px] px-2 py-1" :disabled="!newComment.trim()">Send</button>
+						<Button @click="addComment" size="sm" variant="solid" theme="blue" label="Send" :disabled="!newComment.trim()" />
 					</div>
 				</div>
 			</div>
 
 			<div v-else class="flex-1 flex items-center justify-center">
-				<div class="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+				<LoadingIndicator class="w-6 h-6" />
 			</div>
 		</div>
 	</transition>
@@ -332,8 +330,6 @@ async function save() {
 	saveError.value = ''
 	try {
 		const saved = await saveDoc(doc.value)
-		// Merge server response without replacing the reactive object
-		// This prevents date inputs from blanking out mid-edit
 		if (saved && doc.value) {
 			Object.assign(doc.value, {
 				modified: saved.modified,
@@ -346,7 +342,6 @@ async function save() {
 		const msg = e?.message || 'Failed to save'
 		saveError.value = msg
 		console.error('Failed to save:', msg)
-		// Reload document from server to revert invalid local changes
 		if (doc.value?.name) {
 			try {
 				const fresh = await getDoc('Task', doc.value.name)
@@ -381,7 +376,6 @@ async function loadAssignees() {
 		if (!assignStr) { assignees.value = []; return }
 		const emails = JSON.parse(assignStr)
 		assignees.value = emails.map((email: string) => ({ email, full_name: email.split('@')[0] }))
-		// Enrich with full names
 		for (const a of assignees.value) {
 			try {
 				const user = await getDoc('User', a.email)

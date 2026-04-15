@@ -1,32 +1,26 @@
 <template>
-	<div class="fixed inset-0 bg-black/30 dark:bg-black/50 z-50 flex items-start justify-center pt-[15vh]" @click.self="$emit('close')">
-		<div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-			<div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-				<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">New Project</h2>
-				<button @click="$emit('close')" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-					<svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-					</svg>
-				</button>
-			</div>
-
-			<div class="p-6 space-y-4 max-h-[60vh] overflow-auto">
+	<Dialog
+		:model-value="true"
+		@update:model-value="(v) => { if (!v) $emit('close') }"
+		:options="{ title: 'New Project', size: 'lg' }"
+	>
+		<template #body-content>
+			<div class="space-y-4 max-h-[60vh] overflow-auto pr-1">
 				<div v-if="createError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
-					<svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+					<FeatherIcon name="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0" />
 					<div class="flex-1 whitespace-pre-line">{{ createError }}</div>
 					<button @click="createError = ''" class="text-red-400 hover:text-red-600 flex-shrink-0">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+						<FeatherIcon name="x" class="w-4 h-4" />
 					</button>
 				</div>
 				<div>
 					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Project Name <span class="text-red-500">*</span></label>
-					<input
+					<TextInput
 						ref="nameInput"
 						v-model="form.project_name"
 						@keydown.escape="$emit('close')"
-						type="text"
 						placeholder="Enter project name..."
-						class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="w-full"
 					/>
 				</div>
 
@@ -103,12 +97,7 @@
 
 				<div>
 					<label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Notes</label>
-					<textarea
-						v-model="form.notes"
-						rows="3"
-						placeholder="Project notes..."
-						class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-					></textarea>
+					<FrappeTextarea v-model="form.notes" :rows="3" placeholder="Project notes..." />
 				</div>
 
 				<!-- Users -->
@@ -118,11 +107,12 @@
 						<div
 							v-for="(user, i) in form.users"
 							:key="i"
-							class="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-2 pr-1 py-1 text-xs"
+							class="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full pl-1 pr-1 py-1 text-xs"
 						>
-							<span>{{ user.full_name || user.user }}</span>
+							<Avatar :label="user.full_name || user.user" size="xs" />
+							<span class="px-1">{{ user.full_name || user.user }}</span>
 							<button @click="removeUser(i)" class="p-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800">
-								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+								<FeatherIcon name="x" class="w-3 h-3" />
 							</button>
 						</div>
 					</div>
@@ -145,9 +135,7 @@
 								@mousedown.prevent="addUser(user)"
 								class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 flex items-center gap-2"
 							>
-								<div class="w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
-									{{ (user.full_name || user.name).charAt(0).toUpperCase() }}
-								</div>
+								<Avatar :label="user.full_name || user.name" size="xs" />
 								<div class="truncate">
 									<span class="font-medium">{{ user.full_name || user.name }}</span>
 									<span v-if="user.full_name" class="text-gray-400 dark:text-gray-500 ml-1">{{ user.name }}</span>
@@ -157,17 +145,19 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-				<button @click="$emit('close')" class="px-4 py-2 text-sm rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-					Cancel
-				</button>
-				<button @click="createProject" :disabled="!form.project_name.trim() || creating" class="btn-primary disabled:opacity-50">
-					{{ creating ? 'Creating...' : 'Create Project' }}
-				</button>
-			</div>
-		</div>
-	</div>
+		</template>
+		<template #actions>
+			<Button @click="$emit('close')" variant="subtle" label="Cancel" />
+			<Button
+				@click="createProject"
+				:disabled="!form.project_name.trim() || creating"
+				:loading="creating"
+				variant="solid"
+				theme="blue"
+				:label="creating ? 'Creating...' : 'Create Project'"
+			/>
+		</template>
+	</Dialog>
 </template>
 
 <script setup lang="ts">
@@ -178,12 +168,11 @@ import LinkField from '@/components/common/LinkField.vue'
 
 const emit = defineEmits(['close', 'created'])
 
-const nameInput = ref<HTMLInputElement | null>(null)
+const nameInput = ref<any>(null)
 const creating = ref(false)
 const userSearch = ref('')
 const userResults = ref<Array<{ name: string; full_name: string }>>([])
 const showUserDropdown = ref(false)
-
 const createError = ref('')
 
 const form = ref({
@@ -256,5 +245,5 @@ async function createProject() {
 	}
 }
 
-onMounted(() => nextTick(() => nameInput.value?.focus()))
+onMounted(() => nextTick(() => nameInput.value?.focus?.()))
 </script>

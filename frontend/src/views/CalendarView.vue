@@ -5,14 +5,14 @@
 			<div class="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
 				<div class="flex items-center gap-3">
 					<button @click="prevMonth" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-						<svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+						<FeatherIcon name="chevron-left" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
 					</button>
 					<h2 class="text-sm md:text-lg font-semibold text-gray-900 dark:text-gray-100">{{ currentMonth.format('MMMM YYYY') }}</h2>
 					<button @click="nextMonth" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-						<svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+						<FeatherIcon name="chevron-right" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
 					</button>
 				</div>
-				<button @click="goToToday" class="btn-secondary text-xs">Today</button>
+				<Button @click="goToToday" variant="subtle" size="sm" label="Today" />
 			</div>
 
 			<!-- Body: Month + Day panel side by side -->
@@ -50,7 +50,7 @@
 									class="w-4 h-4 flex items-center justify-center rounded text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 opacity-0 group-hover:opacity-100 transition-opacity"
 									title="Add task for this date"
 								>
-									<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+									<FeatherIcon name="plus" class="w-3 h-3" />
 								</button>
 							</div>
 							<div class="space-y-0.5">
@@ -73,7 +73,9 @@
 										data-draggable
 										:data-drag-value="slot.task.name"
 									>
-										<span v-if="slot.isStart">{{ slot.task.subject }}</span>
+										<span v-if="slot.isStart">
+										<FeatherIcon v-if="slot.task.is_milestone" name="star" class="w-3 h-3 text-amber-500 inline mr-0.5" />{{ slot.task.subject }}
+									</span>
 									</div>
 								</div>
 								<div
@@ -86,7 +88,9 @@
 									@click.stop="taskStore.selectTask(task)"
 									data-draggable
 									:data-drag-value="task.name"
-								>{{ task.subject }}</div>
+							>
+								<FeatherIcon v-if="task.is_milestone" name="star" class="w-3 h-3 text-amber-500 inline mr-0.5" />{{ task.subject }}
+							</div>
 								<div v-if="day.overflow > 0" class="text-xs text-gray-400 dark:text-gray-500 px-1">+{{ day.overflow }} more</div>
 							</div>
 						</div>
@@ -100,7 +104,7 @@
 				>
 					<!-- Collapsed strip (mobile toggle) -->
 					<div v-if="!dayPanelOpen" class="w-8 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50" @click="dayPanelOpen = true">
-						<svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+						<FeatherIcon name="chevron-left" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
 						<span class="text-[9px] text-gray-400 dark:text-gray-500 writing-mode-vertical mt-1" style="writing-mode: vertical-rl;">{{ selectedDate.format('MMM D') }}</span>
 					</div>
 
@@ -110,14 +114,14 @@
 						<div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
 							<div class="flex items-center gap-1.5">
 								<button @click="dayPanelOpen = false" class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 md:hidden">
-									<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+									<FeatherIcon name="chevron-right" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 								</button>
 								<button @click="prevDay" class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-									<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+									<FeatherIcon name="chevron-left" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 								</button>
 								<span class="text-xs font-semibold text-gray-800 dark:text-gray-200">{{ selectedDate.format('ddd, MMM D') }}</span>
 								<button @click="nextDay" class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-									<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+									<FeatherIcon name="chevron-right" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 								</button>
 							</div>
 							<button @click="goToDayToday" class="text-[10px] px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
@@ -138,7 +142,9 @@
 									:title="task.subject"
 									data-draggable
 									:data-drag-value="task.name"
-								>{{ task.subject }}</div>
+							>
+								<FeatherIcon v-if="task.is_milestone" name="star" class="w-3 h-3 text-amber-500 inline mr-0.5" />{{ task.subject }}
+							</div>
 							</div>
 						</div>
 
@@ -166,7 +172,7 @@
 											@click.stop="createTaskForHour(hour - 1)"
 											title="Add task at this time"
 										>
-											<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+											<FeatherIcon name="plus" class="w-3 h-3" />
 										</button>
 									</div>
 								</div>
@@ -185,7 +191,7 @@
 									data-draggable
 									:data-drag-value="block.task.name"
 								>
-									<div class="font-medium truncate leading-tight">{{ block.task.subject }}</div>
+									<div class="font-medium truncate leading-tight"><FeatherIcon v-if="block.task.is_milestone" name="star" class="w-3 h-3 text-amber-500 inline mr-0.5" />{{ block.task.subject }}</div>
 									<div v-if="block.height >= 36" class="text-[9px] opacity-70">
 										{{ block.startTime }} – {{ block.endTime }}
 									</div>

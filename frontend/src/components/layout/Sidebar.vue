@@ -5,9 +5,7 @@
 	>
 		<div class="h-14 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
 			<button @click="$emit('toggle')" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-				<svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-				</svg>
+				<FeatherIcon name="menu" class="w-6 h-6 text-gray-600 dark:text-gray-400" />
 			</button>
 			<span v-if="!collapsed" class="ml-3 font-bold text-lg text-blue-600">Taskist</span>
 		</div>
@@ -20,9 +18,7 @@
 					class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
 					title="New Project"
 				>
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-					</svg>
+					<FeatherIcon name="plus" class="w-4 h-4" />
 				</button>
 			</div>
 

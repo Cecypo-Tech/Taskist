@@ -17,7 +17,7 @@
 			@mousedown.prevent="clear"
 			class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
 		>
-			<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+			<FeatherIcon name="x" class="w-3.5 h-3.5" />
 		</button>
 		<!-- Dropdown -->
 		<div
@@ -39,7 +39,7 @@
 				@mousedown.prevent="createNew"
 				class="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-t border-gray-100 dark:border-gray-600 flex items-center gap-1"
 			>
-				<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+				<FeatherIcon name="plus" class="w-3.5 h-3.5" />
 				Create "{{ query.trim() }}"
 			</button>
 		</div>
@@ -71,7 +71,6 @@ const results = ref<Array<Record<string, any>>>([])
 const showDropdown = ref(false)
 const query = ref('')
 const focused = ref(false)
-// Map from name (value) to display label for showing friendly text
 const labelCache = ref<Record<string, string>>({})
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
@@ -89,7 +88,6 @@ function getDisplayForValue(value: string): string {
 	return value
 }
 
-// Sync from parent when input is NOT focused
 watch(() => props.modelValue, (val) => {
 	if (!focused.value) {
 		query.value = getDisplayForValue(val || '')
@@ -102,7 +100,6 @@ function onInput() {
 	searchTimeout = setTimeout(async () => {
 		try {
 			results.value = await call(props.searchMethod, { query: query.value })
-			// Cache display labels from results
 			for (const item of results.value) {
 				labelCache.value[item.name] = displayLabel(item)
 			}
@@ -113,13 +110,11 @@ function onInput() {
 function onFocus() {
 	focused.value = true
 	showDropdown.value = true
-	// Load initial results
 	call(props.searchMethod, { query: '' }).then(r => {
 		results.value = r || []
 		for (const item of results.value) {
 			labelCache.value[item.name] = displayLabel(item)
 		}
-		// If we have a value but query is showing the raw name, update to display label
 		if (props.modelValue && query.value === props.modelValue && labelCache.value[props.modelValue]) {
 			query.value = labelCache.value[props.modelValue]
 		}
@@ -128,12 +123,10 @@ function onFocus() {
 
 function onBlur() {
 	focused.value = false
-	// Delay to allow mousedown on dropdown items
 	setTimeout(() => {
 		showDropdown.value = false
 		const currentDisplay = getDisplayForValue(props.modelValue || '')
 		if (query.value !== currentDisplay && query.value !== props.modelValue) {
-			// Check if typed value matches an existing result exactly (by display label or name)
 			const exact = results.value.find(r =>
 				displayLabel(r).toLowerCase() === query.value.trim().toLowerCase() ||
 				r.name.toLowerCase() === query.value.trim().toLowerCase()
@@ -143,7 +136,6 @@ function onBlur() {
 			} else if (!query.value.trim()) {
 				emit('update:modelValue', '')
 			} else {
-				// Revert to the current saved value's display
 				query.value = currentDisplay
 			}
 		}

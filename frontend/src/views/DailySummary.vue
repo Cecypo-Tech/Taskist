@@ -36,11 +36,11 @@
 							<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ user.full_name }}</p>
 							<p class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</p>
 						</div>
-						<div class="flex items-center gap-3 text-xs font-medium">
-							<span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{{ user.pending }} pending</span>
-							<span class="px-2 py-1 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">{{ user.completed_today }} today</span>
-							<span class="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">{{ user.completed_week }} week</span>
-							<span v-if="user.overdue > 0" class="px-2 py-1 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">{{ user.overdue }} overdue</span>
+						<div class="flex items-center gap-2 flex-wrap">
+							<Badge :label="`${user.pending} pending`" theme="gray" />
+							<Badge :label="`${user.completed_today} today`" theme="green" />
+							<Badge :label="`${user.completed_week} week`" theme="blue" />
+							<Badge v-if="user.overdue > 0" :label="`${user.overdue} overdue`" theme="red" />
 						</div>
 					</div>
 				</div>

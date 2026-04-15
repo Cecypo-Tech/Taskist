@@ -3,9 +3,7 @@
 		<div class="flex items-center justify-between mb-2">
 			<h3 class="text-xs font-medium text-gray-500 dark:text-gray-400">Attachments</h3>
 			<label class="cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-				</svg>
+				<FeatherIcon name="plus" class="w-4 h-4" />
 				<input type="file" class="hidden" @change="uploadFile" multiple :disabled="uploading" />
 			</label>
 		</div>
@@ -24,9 +22,7 @@
 				</a>
 				<!-- Document icon -->
 				<a v-else :href="file.file_url" target="_blank" class="flex flex-col items-center justify-center aspect-square p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-					<svg class="w-8 h-8 text-gray-400 dark:text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-					</svg>
+					<FeatherIcon name="file" class="w-8 h-8 text-gray-400 dark:text-gray-500 mb-1" />
 					<span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-medium">{{ file.file_ext }}</span>
 				</a>
 				<!-- File name overlay -->
@@ -39,7 +35,7 @@
 					class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
 					title="Remove attachment"
 				>
-					<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+					<FeatherIcon name="x" class="w-3 h-3" />
 				</button>
 			</div>
 		</div>
