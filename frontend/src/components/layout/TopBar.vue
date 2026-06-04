@@ -24,6 +24,16 @@
 		<div class="flex items-center gap-1 ml-auto">
 			<!-- Dark / Light mode toggle -->
 			<button
+				@click="togglePush"
+				class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+				:class="push.enabled.value ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'"
+				:title="push.statusLabel.value"
+				:disabled="push.loading.value"
+			>
+				<FeatherIcon name="bell" class="w-5 h-5" />
+			</button>
+
+			<button
 				@click="toggle()"
 				class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
 				:title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
@@ -58,8 +68,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
 import { useDarkMode } from '@/composables/useDarkMode'
+import { usePushNotifications } from '@/composables/usePushNotifications'
 import TaskQuickAdd from '@/components/task/TaskQuickAdd.vue'
 
 defineEmits(['show-shortcuts', 'toggle-menu'])
@@ -69,6 +81,22 @@ const showQuickAdd = ref(false)
 const prefillDate = ref('')
 const searchInput = ref<HTMLInputElement | null>(null)
 const { isDark, toggle } = useDarkMode()
+const push = usePushNotifications()
+
+onMounted(() => {
+	push.refreshStatus()
+})
+
+async function togglePush() {
+	if (push.enabled.value) {
+		await push.disable()
+		return
+	}
+	await push.enable()
+	if (push.enabled.value) {
+		await push.sendTest()
+	}
+}
 
 function openQuickAdd(date?: string) {
 	prefillDate.value = date || ''

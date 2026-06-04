@@ -16,6 +16,16 @@
 		<div class="flex-1 flex flex-col min-w-0">
 			<TopBar ref="topBar" @show-shortcuts="showShortcuts = true" @toggle-menu="mobileMenuOpen = !mobileMenuOpen" />
 			<TabBar />
+			<div
+				v-if="taskStore.error"
+				class="mx-3 mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 flex items-start gap-2"
+			>
+				<FeatherIcon name="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+				<div class="flex-1 whitespace-pre-line">{{ taskStore.error }}</div>
+				<button class="text-red-400 hover:text-red-600" @click="taskStore.error = ''">
+					<FeatherIcon name="x" class="w-4 h-4" />
+				</button>
+			</div>
 			<main class="flex-1 overflow-auto">
 				<router-view />
 			</main>
@@ -127,8 +137,13 @@ function handleQuickAdd(e: Event) {
 	if (topBar.value) topBar.value.openQuickAdd(detail?.date || '')
 }
 
-onMounted(() => {
-	taskStore.fetchTasks()
+onMounted(async () => {
+	await taskStore.fetchTasks()
+	const taskName = new URLSearchParams(window.location.search).get('task')
+	if (taskName) {
+		const task = taskStore.tasks.find(t => t.name === taskName)
+		taskStore.selectTask(task || ({ name: taskName } as any))
+	}
 	window.addEventListener('taskist:quick-add', handleQuickAdd)
 })
 

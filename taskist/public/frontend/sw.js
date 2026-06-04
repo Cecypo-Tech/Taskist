@@ -49,3 +49,43 @@ self.addEventListener('fetch', (event) => {
 		fetch(request).catch(() => caches.match('/taskist'))
 	)
 })
+
+self.addEventListener('push', (event) => {
+	let payload = {}
+	try {
+		payload = event.data ? event.data.json() : {}
+	} catch {
+		payload = { body: event.data ? event.data.text() : '' }
+	}
+
+	const title = payload.title || 'Taskist'
+	const options = {
+		body: payload.body || '',
+		icon: '/assets/taskist/frontend/icons/icon-192.png',
+		badge: '/assets/taskist/frontend/icons/icon-192.png',
+		tag: payload.tag || 'taskist',
+		data: {
+			url: payload.url || '/taskist',
+			...(payload.data || {}),
+		},
+	}
+
+	event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener('notificationclick', (event) => {
+	event.notification.close()
+	const targetUrl = event.notification.data?.url || '/taskist'
+
+	event.waitUntil(
+		self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+			for (const client of clients) {
+				if ('focus' in client && client.url.includes('/taskist')) {
+					client.navigate(targetUrl)
+					return client.focus()
+				}
+			}
+			return self.clients.openWindow(targetUrl)
+		})
+	)
+})
