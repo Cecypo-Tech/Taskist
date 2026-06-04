@@ -21,6 +21,16 @@
 					<FeatherIcon v-if="task.is_milestone" name="star" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" title="Milestone" />
 					<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ task.subject }}</p>
 					<FeatherIcon v-if="task.taskist_is_recurring" name="refresh-cw" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" title="Recurring task" />
+					<a
+						v-if="sourceUrl"
+						:href="sourceUrl"
+						target="_blank"
+						@click.stop
+						class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 flex-shrink-0"
+						:title="`Open ${task.taskist_reference_doctype} ${task.taskist_reference_name}`"
+					>
+						<FeatherIcon name="external-link" class="w-3.5 h-3.5" />
+					</a>
 				</div>
 				<!-- Progress bar if progress > 0 -->
 				<div v-if="task.progress > 0" class="mt-1.5">
@@ -28,6 +38,9 @@
 				</div>
 				<div v-if="tags.length" class="flex flex-wrap gap-1 mt-1.5">
 					<Badge v-for="tag in tags" :key="tag" :label="tag" size="sm" theme="gray" />
+				</div>
+				<div v-if="task._sla_status" class="mt-1.5">
+					<Badge :label="slaLabel(task._sla_status)" size="sm" :theme="slaTheme(task._sla_status)" />
 				</div>
 				<div class="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
 					<span
@@ -76,6 +89,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useTaskStore, type Task } from '@/stores/taskStore'
+import { documentUrl } from '@/utils/frappeRoute'
+import { slaLabel, slaTheme } from '@/utils/sla'
 import dayjs from 'dayjs'
 
 const props = defineProps<{ task: Task & { _childCount?: number } }>()
@@ -110,6 +125,8 @@ const tags = computed(() => {
 	if (!props.task._user_tags) return []
 	return props.task._user_tags.split(',').filter(Boolean)
 })
+
+const sourceUrl = computed(() => documentUrl(props.task.taskist_reference_doctype, props.task.taskist_reference_name))
 
 const isOverdue = computed(() => {
 	if (!props.task.exp_end_date) return false

@@ -16,6 +16,15 @@
 					>
 						<FeatherIcon name="external-link" class="w-4 h-4" />
 					</a>
+					<a
+						v-if="sourceUrl"
+						:href="sourceUrl"
+						target="_blank"
+						class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 flex-shrink-0"
+						:title="`Open ${doc?.taskist_reference_doctype} ${doc?.taskist_reference_name}`"
+					>
+						<FeatherIcon name="file-text" class="w-4 h-4" />
+					</a>
 				</div>
 				<div class="flex items-center gap-2">
 					<Button
@@ -46,6 +55,39 @@
 
 				<!-- Subject -->
 				<TextInput v-model="doc.subject" @blur="save" class="w-full text-sm font-medium" />
+
+				<!-- Source Document -->
+				<a
+					v-if="sourceUrl"
+					:href="sourceUrl"
+					target="_blank"
+					class="flex items-center gap-1.5 px-2 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+				>
+					<FeatherIcon name="file-text" class="w-3.5 h-3.5 flex-shrink-0" />
+					<span class="text-blue-500 dark:text-blue-400">Source:</span>
+					<span class="font-medium truncate">{{ doc.taskist_reference_doctype }} {{ doc.taskist_reference_name }}</span>
+				</a>
+
+				<!-- SLA -->
+				<div v-if="slaTrackers.length" class="space-y-1.5">
+					<h3 class="text-[11px] font-medium text-gray-400 dark:text-gray-500">SLA</h3>
+					<div
+						v-for="sla in slaTrackers"
+						:key="sla.name"
+						class="flex items-center justify-between gap-2 px-2 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-xs"
+					>
+						<div class="min-w-0">
+							<div class="flex items-center gap-1.5">
+								<Badge :label="slaLabel(sla.status)" size="sm" :theme="slaTheme(sla.status)" />
+								<span class="font-medium text-gray-700 dark:text-gray-300 truncate">{{ sla.rule }}</span>
+							</div>
+							<div class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+								Due {{ formatTime(sla.due_at) }}
+							</div>
+						</div>
+						<FeatherIcon v-if="sla.status === 'Breached'" name="alert-triangle" class="w-4 h-4 text-red-500 flex-shrink-0" />
+					</div>
+				</div>
 
 				<!-- Status + Priority row -->
 				<div class="grid grid-cols-2 gap-2">
@@ -264,7 +306,7 @@
 								<span class="text-[11px] font-medium text-gray-700 dark:text-gray-300">{{ comment.comment_by }}</span>
 								<span class="text-[10px] text-gray-400">{{ formatTime(comment.creation) }}</span>
 							</div>
-							<div class="text-xs text-gray-600 dark:text-gray-300" v-html="comment.content"></div>
+							<div class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre-line">{{ plainText(comment.content) }}</div>
 						</div>
 					</div>
 					<div class="mt-2 flex gap-1.5">
@@ -285,6 +327,8 @@
 import { ref, watch, computed } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
 import { getDoc, saveDoc, call } from '@/data/api'
+import { documentUrl } from '@/utils/frappeRoute'
+import { slaLabel, slaTheme } from '@/utils/sla'
 import PrioritySlider from '@/components/common/PrioritySlider.vue'
 import RecurrenceEditor from '@/components/common/RecurrenceEditor.vue'
 import LinkField from '@/components/common/LinkField.vue'
@@ -296,6 +340,7 @@ const taskStore = useTaskStore()
 const doc = ref<any>(null)
 const saveError = ref('')
 const comments = ref<any[]>([])
+const slaTrackers = ref<any[]>([])
 const newComment = ref('')
 const assignees = ref<Array<{ email: string; full_name: string }>>([])
 const userSearch = ref('')
@@ -307,12 +352,13 @@ const subtaskSubject = ref('')
 const subtaskInput = ref<HTMLInputElement | null>(null)
 
 const isCompleted = computed(() => doc.value && doc.value.status === 'Completed')
+const sourceUrl = computed(() => documentUrl(doc.value?.taskist_reference_doctype, doc.value?.taskist_reference_name))
 
 watch(() => taskStore.selectedTask, async (task) => {
 	if (!task) { doc.value = null; return }
 	try {
 		doc.value = await getDoc('Task', task.name)
-		await Promise.all([loadComments(), loadAssignees(), loadChildTasks()])
+		await Promise.all([loadComments(), loadAssignees(), loadChildTasks(), loadSlaTrackers()])
 	} catch (e) {
 		console.error('Failed to load task:', e)
 	}
@@ -356,6 +402,13 @@ async function loadComments() {
 	try {
 		comments.value = await call('taskist.api.get_task_comments', { task_name: doc.value.name }) || []
 	} catch { comments.value = [] }
+}
+
+async function loadSlaTrackers() {
+	if (!doc.value) return
+	try {
+		slaTrackers.value = await call('taskist.api.get_task_sla', { task_name: doc.value.name }) || []
+	} catch { slaTrackers.value = [] }
 }
 
 async function addComment() {
@@ -472,6 +525,13 @@ function childPriorityColor(priority: string) {
 
 function formatTime(dt: string) {
 	return dayjs(dt).format('MMM D, h:mm A')
+}
+
+function plainText(html: string | null | undefined) {
+	if (!html) return ''
+	const el = document.createElement('div')
+	el.innerHTML = html
+	return el.textContent || el.innerText || ''
 }
 </script>
 

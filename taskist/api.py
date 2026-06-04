@@ -67,16 +67,18 @@ def get_tasks(
 		"total_costing_amount", "total_billing_amount",
 		"taskist_sort_order",
 		"taskist_is_recurring", "taskist_recurrence_rule",
+		"taskist_reference_doctype", "taskist_reference_name", "taskist_reference_todo",
 		"_assign", "_user_tags", "modified", "creation",
 	]
 
-	pl = cint(page_length)
+	pl = cint(page_length) or 500
+	pl = min(pl, 500)
 	tasks = frappe.get_list(
 		"Task",
 		filters=conditions,
 		fields=fields,
 		order_by=order_by,
-		page_length=pl or 0,
+		page_length=pl,
 		start=cint(start),
 	)
 
@@ -121,7 +123,38 @@ def get_tasks(
 				task["_last_comment"] = None
 				task["_last_comment_at"] = None
 
+		sla_trackers = frappe.get_all(
+			"Taskist SLA Tracker",
+			filters={"task": ["in", task_names]},
+			fields=["task", "status", "due_at", "warning_at", "rule"],
+			order_by="due_at asc",
+		)
+		sla_by_task = {}
+		for tracker in sla_trackers:
+			if tracker.task not in sla_by_task:
+				sla_by_task[tracker.task] = tracker
+
+		for task in tasks:
+			tracker = sla_by_task.get(task.name)
+			task["_sla_status"] = tracker.status if tracker else None
+			task["_sla_due_at"] = str(tracker.due_at) if tracker and tracker.due_at else None
+			task["_sla_warning_at"] = str(tracker.warning_at) if tracker and tracker.warning_at else None
+			task["_sla_rule"] = tracker.rule if tracker else None
+
 	return tasks
+
+
+@frappe.whitelist()
+def get_task_sla(task_name):
+	"""Get SLA tracker summaries for a Task."""
+	frappe.has_permission("Task", doc=task_name, throw=True)
+	return frappe.get_all(
+		"Taskist SLA Tracker",
+		filters={"task": task_name},
+		fields=["name", "rule", "status", "due_at", "warning_at", "breached_on", "completed_on"],
+		order_by="due_at asc",
+		limit_page_length=20,
+	)
 
 
 @frappe.whitelist()
@@ -145,6 +178,7 @@ def quick_create_task(
 	if project:
 		task.project = project
 	if parent_task:
+		frappe.has_permission("Task", "write", doc=parent_task, throw=True)
 		task.parent_task = parent_task
 		# Ensure the parent is marked as a group task (required by ERPNext)
 		parent_is_group = frappe.db.get_value("Task", parent_task, "is_group")
@@ -182,6 +216,11 @@ def update_task_status(task_name, status, sort_order=None):
 	if sort_order is not None:
 		task.taskist_sort_order = cint(sort_order)
 	task.save(ignore_permissions=False)
+	if status == "Completed":
+		from taskist.assignments import close_source_todo_for_task
+		from taskist.sla import complete_trackers_for_task
+		close_source_todo_for_task(task)
+		complete_trackers_for_task(task)
 	return {"name": task.name, "status": task.status, "sort_order": task.taskist_sort_order}
 
 
@@ -480,6 +519,7 @@ def get_task_assignees(task_name):
 @frappe.whitelist()
 def get_attachments(task_name):
 	"""Get file attachments for a task."""
+	frappe.has_permission("Task", doc=task_name, throw=True)
 	files = frappe.get_list(
 		"File",
 		filters={
@@ -502,6 +542,9 @@ def get_attachments(task_name):
 @frappe.whitelist()
 def remove_attachment(file_name):
 	"""Remove a file attachment."""
+	file_doc = frappe.get_doc("File", file_name)
+	if file_doc.attached_to_doctype == "Task" and file_doc.attached_to_name:
+		frappe.has_permission("Task", "write", doc=file_doc.attached_to_name, throw=True)
 	frappe.delete_doc("File", file_name, ignore_permissions=False)
 	return {"success": True}
 
@@ -525,6 +568,12 @@ def get_child_tasks(parent_task):
 
 def notify_task_change(doc, method=None):
 	"""Broadcast task changes via realtime for multi-user sync."""
+	if doc.status == "Completed":
+		from taskist.assignments import close_source_todo_for_task
+		from taskist.sla import complete_trackers_for_task
+		close_source_todo_for_task(doc)
+		complete_trackers_for_task(doc)
+
 	frappe.publish_realtime(
 		"taskist_update",
 		{

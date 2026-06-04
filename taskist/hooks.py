@@ -3,7 +3,7 @@ app_title = "Taskist"
 app_publisher = "Taskist"
 app_description = "Task Management SPA"
 app_email = "dev@taskist.com"
-app_license = "mit"
+app_license = "AGPL-3.0"
 
 # Apps
 # ------------------
@@ -135,6 +135,10 @@ doc_events = {
 	"Task": {
 		"after_insert": "taskist.api.notify_task_change",
 		"on_update": "taskist.api.notify_task_change",
+	},
+	"ToDo": {
+		"after_insert": "taskist.assignments.sync_todo_assignment",
+		"on_update": "taskist.assignments.sync_todo_assignment",
 	}
 }
 
@@ -142,6 +146,9 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
+	"hourly": [
+		"taskist.sla.evaluate_sla_rules",
+	],
 	"daily": [
 		"taskist.api.create_recurring_tasks"
 	],

@@ -32,6 +32,13 @@ export interface Task {
 	taskist_sort_order: number
 	taskist_is_recurring: boolean
 	taskist_recurrence_rule: string | null
+	taskist_reference_doctype: string | null
+	taskist_reference_name: string | null
+	taskist_reference_todo: string | null
+	_sla_status: string | null
+	_sla_due_at: string | null
+	_sla_warning_at: string | null
+	_sla_rule: string | null
 	// Virtual / internal fields
 	_assign: string
 	_user_tags: string
@@ -47,6 +54,7 @@ export const KANBAN_STATUSES = ['Open', 'Working', 'Pending Review', 'Overdue', 
 export const useTaskStore = defineStore('tasks', () => {
 	const tasks = ref<Task[]>([])
 	const loading = ref(false)
+	const error = ref('')
 	const selectedTask = ref<Task | null>(null)
 	const showDetail = ref(false)
 	const filters = ref<Record<string, any>>({})
@@ -160,14 +168,16 @@ export const useTaskStore = defineStore('tasks', () => {
 
 	async function fetchTasks(extraFilters: Record<string, any> = {}) {
 		loading.value = true
+		error.value = ''
 		try {
 			const result = await call('taskist.api.get_tasks', {
 				filters: { ...filters.value, ...extraFilters },
 				include_completed: 1,
-				page_length: 0,
+				page_length: 500,
 			})
 			tasks.value = result || []
-		} catch (e) {
+		} catch (e: any) {
+			error.value = e?.message || 'Failed to fetch tasks'
 			console.error('Failed to fetch tasks:', e)
 		} finally {
 			loading.value = false
@@ -229,7 +239,7 @@ export const useTaskStore = defineStore('tasks', () => {
 	}
 
 	return {
-		tasks, loading, selectedTask, showDetail, filters, searchQuery,
+		tasks, loading, error, selectedTask, showDetail, filters, searchQuery,
 		collapsedGroups, allCollapsed, nameSort, groupFilter,
 		filteredTasks, tasksByStatus, childrenMap, hierarchicalTasks,
 		fetchTasks, quickCreate, updateTaskStatus, selectTask, closeDetail,

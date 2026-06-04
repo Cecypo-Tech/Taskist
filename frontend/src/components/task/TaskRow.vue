@@ -27,6 +27,16 @@
 		<span class="flex-1 text-sm truncate flex items-center gap-1" :class="isDone ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-gray-100'">
 			{{ task.subject }}
 			<FeatherIcon v-if="task.taskist_is_recurring" name="refresh-cw" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" title="Recurring task" />
+			<a
+				v-if="sourceUrl"
+				:href="sourceUrl"
+				target="_blank"
+				@click.stop
+				class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 flex-shrink-0"
+				:title="`Open ${task.taskist_reference_doctype} ${task.taskist_reference_name}`"
+			>
+				<FeatherIcon name="external-link" class="w-3.5 h-3.5" />
+			</a>
 		</span>
 		<span v-if="childCount > 0" class="text-xs text-blue-500 flex items-center gap-0.5 flex-shrink-0">
 			<FeatherIcon name="folder" class="w-3 h-3" />
@@ -41,6 +51,7 @@
 			</button>
 		</span>
 		<Badge :label="task.status || 'Open'" size="sm" theme="gray" class="hidden sm:inline-flex" />
+		<Badge v-if="task._sla_status" :label="slaLabel(task._sla_status)" size="sm" :theme="slaTheme(task._sla_status)" class="hidden sm:inline-flex" />
 		<span v-if="task.project" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px] hidden md:inline">{{ task.project }}</span>
 		<span v-if="task.exp_end_date" class="text-xs whitespace-nowrap" :class="isOverdue ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'">
 			{{ formatDate(task.exp_end_date) }}
@@ -64,6 +75,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useTaskStore, type Task } from '@/stores/taskStore'
 import { call } from '@/data/api'
+import { documentUrl } from '@/utils/frappeRoute'
+import { slaLabel, slaTheme } from '@/utils/sla'
 import dayjs from 'dayjs'
 
 const props = withDefaults(defineProps<{
@@ -98,6 +111,7 @@ const childCount = computed(() => {
 	if (typeof props.task._childCount === 'number') return props.task._childCount
 	return (taskStore.childrenMap[props.task.name] || []).length
 })
+const sourceUrl = computed(() => documentUrl(props.task.taskist_reference_doctype, props.task.taskist_reference_name))
 
 async function toggleDone() {
 	await call('taskist.api.update_task_status', {

@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "autoname": "field:rule_name",
+ "creation": "2026-06-04 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "rule_name",
+  "enabled",
+  "reference_doctype",
+  "conditions_json",
+  "target_minutes",
+  "warning_minutes_before_due",
+  "notify_on_warning",
+  "notify_on_breach"
+ ],
+ "fields": [
+  {
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rule Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reference DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "description": "Optional Frappe filters as JSON, for example {\"status\":\"To Receive and Bill\"}",
+   "fieldname": "conditions_json",
+   "fieldtype": "Code",
+   "label": "Conditions JSON",
+   "options": "JSON"
+  },
+  {
+   "default": "1440",
+   "fieldname": "target_minutes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Target Minutes",
+   "reqd": 1
+  },
+  {
+   "default": "60",
+   "fieldname": "warning_minutes_before_due",
+   "fieldtype": "Int",
+   "label": "Warning Minutes Before Due"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_warning",
+   "fieldtype": "Check",
+   "label": "Notify on Warning"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_breach",
+   "fieldtype": "Check",
+   "label": "Notify on Breach"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-06-04 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Taskist",
+ "name": "Taskist SLA Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

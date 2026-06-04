@@ -1,0 +1,17 @@
+node_modules/
+frontend/node_modules/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+.DS_Store
+Thumbs.db
+
+.env
+.env.*
+!.env.example

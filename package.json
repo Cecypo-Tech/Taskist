@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Task Management SPA",
   "scripts": {
-    "postinstall": "cd frontend && yarn install",
-    "build": "cd frontend && npx vite build --base=/assets/taskist/frontend/ && cp ../taskist/public/frontend/index.html ../taskist/www/taskist.html"
+    "postinstall": "cd frontend && npm install",
+    "build": "cd frontend && npm run build"
   },
-  "license": "MIT"
+  "license": "AGPL-3.0"
 }
